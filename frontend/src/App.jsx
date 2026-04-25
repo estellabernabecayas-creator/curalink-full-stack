@@ -16,8 +16,23 @@ import Verify from './pages/Verify'
 import VideoConsultation from './pages/VideoConsultation'
 
 const App = () => {
+  useEffect(() => {
+    const handleUnhandledError = (event) => {
+      console.error('Unhandled error:', event.error);
+      event.preventDefault();
+    };
+
+    window.addEventListener('error', handleUnhandledError);
+    window.addEventListener('unhandledrejection', handleUnhandledError);
+
+    return () => {
+      window.removeEventListener('error', handleUnhandledError);
+      window.removeEventListener('unhandledrejection', handleUnhandledError);
+    };
+  }, []);
+
   return (
-     <div className='bg-gradient-to-br from-blue-50 via-green-50 to-white min-h-screen dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900'>
+    <div className='bg-gradient-to-br from-blue-50 via-green-50 to-white min-h-screen dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900'>
       <div className='mx-2 sm:mx-[3%]'>
         <ToastContainer />
         <Navbar />
@@ -32,6 +47,7 @@ const App = () => {
           <Route path='/my-appointments' element={<MyAppointments />} />
           <Route path='/my-profile' element={<MyProfile />} />
           <Route path='/verify' element={<Verify />} />
+          <Route path='/video-consultation/:appointmentId' element={<VideoConsultation />} />
           <Route path='/video-consultation/:appointmentId' element={<VideoConsultation />} />
         </Routes>
         <Footer />
