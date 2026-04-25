@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    font-family: Outfit;
+}
+
+.active hr {
+    @apply block
+}
+
+@media (max-width:740px) {
+    .active  p{
+       @apply text-white bg-gradient-to-r from-blue-500 to-green-500
+    }
+}
+
+::-webkit-scrollbar {
+    @apply hidden
+}
+
+/* Dark mode base styles */
+.dark {
+    color-scheme: dark;
+}
+ 
+html.dark body {
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.0), rgba(0, 0, 0, 0.0)),
+        url('./assets/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #f1f5f9;
+}
+
+/* Hide outside days from react-datepicker */
+.react-datepicker__day--outside-month {
+    visibility: hidden;
+}
+
+html body {
+    background: linear-gradient(135deg, #e6f4ff 0%, #f0fff7 50%, #ffffff 100%);
+    min-height: 100vh;
+}

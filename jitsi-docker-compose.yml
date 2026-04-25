@@ -1,0 +1,312 @@
+# Docker Compose for Self-Hosted Jitsi Meet
+# Save as docker-compose.yml in your Jitsi server
+
+version: '3.5'
+
+services:
+    # Frontend web server
+    web:
+        image: jitsi/web:latest
+        restart: unless-stopped
+        ports:
+            - '${HTTP_PORT}:80'
+            - '${HTTPS_PORT}:443'
+        volumes:
+            - ${CONFIG}/web:/config:Z
+            - ${CONFIG}/transcripts:/usr/share/jitsi-meet/transcripts:Z
+        environment:
+            - ENABLE_AUTH
+            - ENABLE_GUESTS
+            - ENABLE_LOBBY
+            - ENABLE_PREJOIN_PAGE
+            - ENABLE_WELCOME_PAGE
+            - PUBLIC_URL
+            - TZ
+            - AMPLITUDE_ID
+            - ANALYTICS_SCRIPT_URLS
+            - ANALYTICS_WHITELISTED_EVENTS
+            - CALLSTATS_CUSTOM_SCRIPT_URL
+            - CALLSTATS_ID
+            - CALLSTATS_SECRET
+            - CHROME_EXTENSION_BANNER_JSON
+            - CONFCODE_URL
+            - CONFIG_EXTERNAL_CONNECT
+            - DEFAULT_LANGUAGE
+            - DEPLOYMENTINFO_ENVIRONMENT
+            - DEPLOYMENTINFO_ENVIRONMENT_TYPE
+            - DEPLOYMENTINFO_REGION
+            - DEPLOYMENTINFO_SHARD
+            - DEPLOYMENTINFO_USERREGION
+            - DIALOUT_AUTH_URL
+            - DIALOUT_CODES_URL
+            - DROPBOX_APPKEY
+            - DROPBOX_REDIRECT_URI
+            - DYNAMIC_BRANDING_URL
+            - ENABLE_AUDIO_PROCESSING
+            - ENABLE_BREAKOUT_ROOMS
+            - ENABLE_CALENDAR
+            - ENABLE_FILE_RECORDING_SHARING
+            - ENABLE_GRANT_MODERATOR
+            - ENABLE_H264_CODEC
+            - ENABLE_HTTP_REDIRECT
+            - ENABLE_JAAS_COMPONENTS
+            - ENABLE_LEDSYNC
+            - ENABLE_NO_AUDIO_DETECTION
+            - ENABLE_NOISY_MIC_DETECTION
+            - ENABLE_OCTO
+            - ENABLE_OPUS_RED
+            - ENABLE_TCC
+            - ENABLE_TRANSCRIPTIONS
+            - ETHERPAD_PUBLIC_URL
+            - ETHERPAD_URL_BASE
+            - GOOGLE_ANALYTICS_ID
+            - GOOGLE_API_APP_CLIENT_ID
+            - HIDE_PREMEETING_BUTTONS
+            - HIDE_PREJOIN_DISPLAY_NAME
+            - INVITE_SERVICE_URL
+            - JVB_PREFER_SCTP
+            - LEASE_ACCOUNT
+            - LEASE_APP_ID
+            - LEASE_ORIGIN
+            - LEASE_SECRET
+            - LEASE_WEBSOCKET_URL
+            - MATOMO_ENDPOINT
+            - MATOMO_SITE_ID
+            - MICROSOFT_API_APP_CLIENT_ID
+            - NGINX_RESOLVER
+            - NGINX_WORKER_CONNECTIONS
+            - NGINX_WORKER_PROCESSES
+            - PEOPLE_SEARCH_URL
+            - PREFERRED_DOMAIN
+            - RESOLUTION
+            - RESOLUTION_MIN
+            - START_AUDIO_MUTED
+            - START_VIDEO_MUTED
+            - START_WITH_AUDIO_MUTED
+            - START_WITH_VIDEO_MUTED
+            - TOKEN_AUTH_URL
+            - VIDEOQUALITY_BITRATE_H264_LOW
+            - VIDEOQUALITY_BITRATE_H264_STANDARD
+            - VIDEOQUALITY_BITRATE_H264_HIGH
+            - VIDEOQUALITY_BITRATE_VP8_LOW
+            - VIDEOQUALITY_BITRATE_VP8_STANDARD
+            - VIDEOQUALITY_BITRATE_VP8_HIGH
+            - VIDEOQUALITY_BITRATE_VP9_LOW
+            - VIDEOQUALITY_BITRATE_VP9_STANDARD
+            - VIDEOQUALITY_BITRATE_VP9_HIGH
+            - VIDEOQUALITY_PREFERRED_CODEC
+            - XMPP_DOMAIN
+            - XMPP_AUTH_DOMAIN
+            - XMPP_BOSH_URL_BASE
+            - XMPP_GUEST_DOMAIN
+            - XMPP_MUC_DOMAIN
+            - XMPP_RECORDER_DOMAIN
+            - XMPP_INTERNAL_MUC_DOMAIN
+            - DISABLE_DEEP_LINKING
+            - SSO_AUTH_URL
+            - COLIBRI_WEBSOCKET_PORT
+            - JICOFO_COLIBRI_REST_URL
+        networks:
+            meet.jitsi:
+
+    # XMPP server
+    prosody:
+        image: jitsi/prosody:latest
+        restart: unless-stopped
+        expose:
+            - '5222'
+            - '5347'
+            - '5280'
+        volumes:
+            - ${CONFIG}/prosody/config:/config:Z
+            - ${CONFIG}/prosody/data:/prosody:Z
+        environment:
+            - AUTH_TYPE
+            - ENABLE_AUTH
+            - ENABLE_GUESTS
+            - ENABLE_LOBBY
+            - ENABLE_XMPP_WEBSOCKET
+            - GLOBAL_MODULES
+            - GLOBAL_CONFIG
+            - LDAP_URL
+            - LDAP_BASE
+            - LDAP_BINDDN
+            - LDAP_BINDPW
+            - LDAP_FILTER
+            - LDAP_AUTH_METHOD
+            - LDAP_VERSION
+            - LDAP_USE_TLS
+            - LDAP_TLS_CIPHERS
+            - LDAP_TLS_CHECK_PEER
+            - LDAP_TLS_CACERT_FILE
+            - LDAP_TLS_CACERT_DIR
+            - LDAP_START_TLS
+            - LOG_LEVEL
+            - PUBLIC_URL
+            - TURN_CREDENTIALS
+            - TURN_HOST
+            - TURNS_HOST
+            - TZ
+            - XMPP_DOMAIN
+            - XMPP_AUTH_DOMAIN
+            - XMPP_GUEST_DOMAIN
+            - XMPP_MUC_DOMAIN
+            - XMPP_INTERNAL_MUC_DOMAIN
+            - XMPP_MODULES
+            - XMPP_MUC_MODULES
+            - XMPP_INTERNAL_MUC_MODULES
+            - XMPP_RECORDER_DOMAIN
+            - XMPP_CROSS_DOMAIN
+        networks:
+            meet.jitsi:
+                aliases:
+                    - xmpp.meet.jitsi
+
+    # Focus component
+    jicofo:
+        image: jitsi/jicofo:latest
+        restart: unless-stopped
+        volumes:
+            - ${CONFIG}/jicofo:/config:Z
+        environment:
+            - AUTH_TYPE
+            - ENABLE_AUTH
+            - XMPP_DOMAIN
+            - XMPP_AUTH_DOMAIN
+            - XMPP_INTERNAL_MUC_DOMAIN
+            - XMPP_MUC_DOMAIN
+            - XMPP_SERVER
+            - JVB_BREWERY_MUC
+            - JVB_AUTH_USER
+            - JVB_AUTH_PASSWORD
+            - JICOFO_AUTH_USER
+            - JICOFO_AUTH_PASSWORD
+            - JICOFO_ENABLE_HEALTH_CHECKS
+            - JICOFO_MAX_MEMORY
+            - JICOFO_SSRC_REASSIGNMENT_ON_LEAVE
+            - TZ
+        depends_on:
+            - prosody
+        networks:
+            meet.jitsi:
+
+    # Video bridge
+    jvb:
+        image: jitsi/jvb:latest
+        restart: unless-stopped
+        ports:
+            - '${JVB_PORT:-10000}:${JVB_PORT:-10000}/udp'
+            - '127.0.0.1:${JVB_COLIBRI_PORT:-8080}:8080'
+        volumes:
+            - ${CONFIG}/jvb:/config:Z
+        environment:
+            - DOCKER_HOST_ADDRESS
+            - XMPP_AUTH_DOMAIN
+            - XMPP_INTERNAL_MUC_DOMAIN
+            - XMPP_SERVER
+            - JVB_AUTH_USER
+            - JVB_AUTH_PASSWORD
+            - JVB_BREWERY_MUC
+            - JVB_PORT
+            - JVB_TCP_HARVESTER_DISABLED
+            - JVB_TCP_PORT
+            - JVB_TCP_MAPPED_PORT
+            - JVB_STUN_SERVERS
+            - JVB_OCTO_BIND_ADDRESS
+            - JVB_OCTO_PUBLIC_ADDRESS
+            - JVB_OCTO_BIND_PORT
+            - JVB_OCTO_REGION
+            - COLIBRI_REST_ENABLED
+            - COLIBRI_REST_PORT
+            - SHUTDOWN_REST_ENABLED
+            - TZ
+            - COLIBRI_WEBSOCKET_CADDY_PROXY
+            - COLIBRI_WEBSOCKET_ENABLED
+            - COLIBRI_WEBSOCKET_PORT
+            - COLIBRI_WEBSOCKET_TLS
+            - JVB_MUC_NICKNAME
+            - JVB_ADAPTIVE_LASTN
+            - JVB_ADAPTIVE_LASTN_TOP_USRS
+            - JVB_ASSUMED_BANDWIDTH
+            - JVB_BANDWIDTH_PROBES
+            - JVB_CONSISTENT_RECV_TRACK_PLANNING
+            - JVB_DISABLE_CHANGE_ON_PTP
+            - JVB_DISABLE_PTQ_REMOVAL_ON_PTP
+            - JVB_DYNAMIC_AVAILABILITY_AWARENESS
+            - JVB_DONT_USE_ROUTE_SSL_TCP
+            - JVB_DROP_MUTED_VIDEO
+            - JVB_DST_STD_DEV_FRAMES
+            - JVB_ENABLE_CALCULATOR_EXECUTORS
+            - JVB_ENABLE_DIRECT_MEDIA
+            - JVB_ENABLE_MEDIA_PROTECTION
+            - JVB_ENABLE_RTX_HQ
+            - JVB_ENABLE_VLA
+            - JVB_EP_IDS_TO_IGNORE
+            - JVB_GOOG_MAX_RECEIVE_BW
+            - JVB_HEAD_QUEUE_LIMIT_MILLISECONDS
+            - JVB_HEAD_QUEUE_LIMIT_PACKETS
+            - JVB_JETTY_REQUEST_HEADER_SIZE
+            - JVB_JETTY_RESPONSE_HEADER_SIZE
+            - JVB_LASTN
+            - JVB_LOAD management
+            - JVB_LOAD_AVG_PER_CORE_THRESHOLD
+            - JVB_LOAD_MU8
+            - JVB_LOAD_UPTIME_THRESHOLD
+            - JVB_MAX_AUDIO_SEND_BW
+            - JVB_MAX_VIDEO_SEND_BW
+            - JVB_MIN_AUDIO_SEND_BW
+            - JVB_MIN_VIDEO_SEND_BW
+            - JVB_MULTI_VALUE_HOLDER
+            - JVB_PACKET_RATE_THRESHOLD
+            - JVB_PARTICIPANTS_THRESHOLD
+            - JVB_REDEEM_INITIALIZED
+            - JVB_RELAY_BOUNDARY
+            - JVB_RELAY_BUFFER_TIME_MS
+            - JVB_RELAY_CONGESTION_LIMIT_THRESHOLD
+            - JVB_RELAY_ID
+            - JVB_RELAY_SENDER_LIMIT_THRESHOLD
+            - JVB_REMB_ON_MUTE
+            - JVB_REMB_ON_MUTE_DELAY_MS
+            - JVB_REMB_ON_MUTE_FACTOR
+            - JVB_RTP_STATS_ENABLED
+            - JVB_RTP_TRACKING_ID
+            - JVB_S2S_RTCP_RECV_BUFFER_SIZE
+            - JVB_S2S_RTCP_SEND_BUFFER_SIZE
+            - JVB_S2S_RTP_RECV_BUFFER_SIZE
+            - JVB_S2S_RTP_SEND_BUFFER_SIZE
+            - JVB_SINGLE_PORT_HARVESTER_PORT
+            - JVB_SSRC_LIMIT
+            - JVB_SS_SRCS_TO_IGNORE
+            - JVB_STRIP_SIMULCAST
+            - JVB_TCC_INTERVAL_MS
+            - JVB_TCC_SENDER_SIDE
+            - JVB_TOS
+            - JVB_USE_SINGLE_PORT_HARVESTER
+            - JVB_USE_NEW_BANDWIDTH_ALLOCATION_STRATEGY
+            - JVB_VIDEO_BUFFER_MAX_MESSAGES
+            - JVB_VIDEO_STREAMS_MAX
+            - JVB_VLA_DEF_MAX_RTX_PER_PACKET
+            - JVB_VLA_DEF_RTX_PROBABILITY
+            - JVB_VLA_DEF_SENDING_PROBABILITY
+            - JVB_VLA_MAX_RECEIVE_BW
+            - JVB_VLA_SENDING_MAX_RTX_PER_PACKET
+            - JVB_VLA_SENDING_RTX_PROBABILITY
+            - JVB_VLA_SENDING_SENDING_PROBABILITY
+            - JVB_WEBSOCKET_CADDY_PROXY
+            - JVB_WEBSOCKET_ENABLED
+            - JVB_WEBSOCKET_PORT
+            - JVB_WEBSOCKET_SERVER_ID
+            - JVB_WEBSOCKET_TLS
+            - JVB_WS_SERVER_ID
+        depends_on:
+            - prosody
+        networks:
+            meet.jitsi:
+                ipv4_address: 172.19.0.5
+
+networks:
+    meet.jitsi:
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.19.0.0/16
