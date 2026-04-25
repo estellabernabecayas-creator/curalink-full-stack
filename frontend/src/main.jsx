@@ -40,7 +40,7 @@ class ErrorBoundary extends React.Component {
       <BrowserRouter>
         <ThemeProvider>
           <AppContextProvider>
-            <App />
+            {this.props.children}
           </AppContextProvider>
         </ThemeProvider>
       </BrowserRouter>
