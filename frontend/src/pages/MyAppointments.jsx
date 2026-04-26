@@ -274,7 +274,7 @@ const MyAppointments = () => {
                             <img className='w-36 bg-[#EAEFFF]' src={item.docData.image} alt="" />
                         </div>
                         <div className='flex-1 text-sm text-[#5E5E5E] dark:text-gray-300'>
-                            <p className='text-[#262626] dark:text-white text-base font-semibold'>Dr. {item.docData.name} {item.consultationType === 'online' ? 'Online' : 'On-site'}</p>
+                            <p className='text-[#262626] dark:text-white text-base font-semibold'>{item.docData.name.startsWith('Dr.') ? item.docData.name : `Dr. ${item.docData.name}`} (<span className={item.consultationType === 'online' ? 'text-blue-500 dark:text-blue-400' : 'text-emerald-500 dark:text-emerald-400'}>{item.consultationType === 'online' ? 'Online' : 'On-site'}</span>)</p>
                             <p className='dark:text-gray-400'>{item.docData.speciality}</p>
                             <p className=' mt-1'><span className='text-sm text-[#3C3C3C] dark:text-gray-300 font-medium'>Date & Time:</span></p>
                             <p className='text-sm text-gray-600 dark:text-gray-400 mt-1'>{slotDateFormat(item.slotDate)} |  {item.slotTime}</p>

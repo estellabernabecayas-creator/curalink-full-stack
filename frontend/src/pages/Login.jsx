@@ -599,7 +599,7 @@ const Login = () => {
           ? <p>Already have an account? <span onClick={() => handleSwitchState('Login')} className='text-blue-600 hover:text-blue-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(59,130,246,0.4)]'>Login here</span></p>
           : <p>Create a new account? <span onClick={() => handleSwitchState('Sign Up')} className='text-blue-600 hover:text-blue-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(59,130,246,0.4)]'>Click here</span></p>
         }
-        <p><span onClick={() => window.open('https://curalink-admin-grmc.onrender.com/admin-login', '_blank')} className='text-green-600 hover:text-green-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(34,197,94,0.4)]'>Admin login</span> or <span onClick={() => window.open('https://curalink-admin-grmc.onrender.com/doctor-login', '_blank')} className='text-blue-600 hover:text-blue-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(59,130,246,0.4)]'>Doctor login</span></p>
+        <p><span onClick={() => window.open('https://curalink-admin-xl5a.onrender.com/admin-login', '_blank')} className='text-green-600 hover:text-green-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(34,197,94,0.4)]'>Admin login</span> or <span onClick={() => window.open('https://curalink-admin-xl5a.onrender.com/doctor-login', '_blank')} className='text-blue-600 hover:text-blue-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(59,130,246,0.4)]'>Doctor login</span></p>
       </div>
 
       {/* Profile Completion Modal */}
