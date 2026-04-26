@@ -117,6 +117,7 @@ const About = () => {
             image={assets.pic3 || '/pic3.png'} 
             name="Carl Isaac Celeste" 
             role="QA Tester" 
+            email="isaacceleste4@gmail.com"
             facebook="https://www.facebook.com/isaaccelest"
             instagram="https://www.instagram.com/ice__flakes/?hl=en"
           />
