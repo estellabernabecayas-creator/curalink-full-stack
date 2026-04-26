@@ -12,6 +12,7 @@ const MyAppointments = () => {
     const navigate = useNavigate()
 
     const [appointments, setAppointments] = useState([])
+    const [loading, setLoading] = useState(true)
     const [payment, setPayment] = useState('')
     
     // Cash payment states
@@ -33,16 +34,19 @@ const MyAppointments = () => {
         return dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2]
     }
 
-    // Getting User Appointments Data Using API
+    // Getting User Appointments// ✅ UPDATED: Add loading state
     const getUserAppointments = async () => {
+        setLoading(true)
         try {
-
+            // Add slight delay for better UX
+            await new Promise(resolve => setTimeout(resolve, 800))
             const { data } = await axios.get(backendUrl + '/api/user/appointments', { headers: { token } })
             setAppointments(data.appointments.reverse())
-
         } catch (error) {
             console.log(error)
             toast.error(error.message)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -218,7 +222,52 @@ const MyAppointments = () => {
     return (
         <div>
             <p className='pb-3 mt-12 text-lg font-medium text-gray-600 dark:text-gray-300 border-b dark:border-slate-700'>My appointments</p>
-            <div className='space-y-4'>
+            
+            {loading && (
+                <div className="flex flex-col items-center justify-center py-16 md:py-24 text-center">
+                    <div className="relative w-32 h-32 mb-6">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100 dark:from-blue-900/30 dark:to-green-900/30 rounded-full"></div>
+                        <div className="relative w-full h-full flex items-center justify-center">
+                            <div className="w-12 h-12 border-4 border-gray-200 dark:border-slate-700 border-t-blue-500 border-r-green-500 rounded-full animate-spin"></div>
+                        </div>
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                        Loading Your Appointments...
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400">
+                        Please wait while we fetch your appointment history.
+                    </p>
+                </div>
+            )}
+
+            {!loading && appointments.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-16 md:py-24 text-center">
+                    <div className="relative w-32 h-32 mb-6">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100 dark:from-blue-900/30 dark:to-green-900/30 rounded-full animate-pulse"></div>
+                        <div className="relative w-full h-full flex items-center justify-center">
+                            <svg className="w-16 h-16 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                        No Appointments Yet
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+                        Book your first appointment with our trusted doctors and start your healthcare journey.
+                    </p>
+                    <button 
+                        onClick={() => navigate('/doctors')}
+                        className="mt-6 px-8 py-3 bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                    >
+                        Browse Doctors
+                    </button>
+                </div>
+            )}
+
+            {!loading && appointments.length > 0 && (
+                <div className='space-y-4'>
                 {appointments.map((item, index) => (
                     <div key={index} className='grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-4 border-b border-gray-300 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-300 rounded-lg p-4 -mx-4 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700'>
                         <div>
@@ -266,7 +315,8 @@ const MyAppointments = () => {
                         </div>
                     </div>
                 ))}
-            </div>
+                </div>
+            )}
 
             {/* Cash Payment Confirmation Modal */}
             {showCashConfirm && selectedAppointment && (

@@ -18,8 +18,38 @@
     }
 }
 
+/* Custom scrollbar matching teal theme */
 ::-webkit-scrollbar {
-    @apply hidden
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+}
+
+/* Firefox support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #14b8a6 #f1f5f9;
+}
+
+.dark * {
+  scrollbar-color: #14b8a6 #1e293b;
 }
 
 /* Dark mode base styles */
@@ -45,4 +75,35 @@ html.dark body {
 html body {
     background: linear-gradient(135deg, #e6f4ff 0%, #f0fff7 50%, #ffffff 100%);
     min-height: 100vh;
+}
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
 }

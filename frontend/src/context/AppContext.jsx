@@ -10,12 +10,13 @@ const AppContextProvider = (props) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL
 
     const [doctors, setDoctors] = useState([])
+    const [loading, setLoading] = useState(true)
     const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : '')
     const [userData, setUserData] = useState(false)
 
     // Getting Doctors using API
     const getDoctosData = async () => {
-
+        setLoading(true)
         try {
 
             const { data } = await axios.get(backendUrl + '/api/doctor/list')
@@ -28,6 +29,8 @@ const AppContextProvider = (props) => {
         } catch (error) {
             console.log(error)
             toast.error(error.message)
+        } finally {
+            setLoading(false)
         }
 
     }
@@ -54,16 +57,16 @@ const AppContextProvider = (props) => {
 
     useEffect(() => {
         getDoctosData()
-    }, [])
+    }, [])  // Empty dependency array means it runs once on mount
 
     useEffect(() => {
         if (token) {
             loadUserProfileData()
         }
-    }, [token])
+    }, [token]) // Added dependency array to re-run when token changes
 
     const value = {
-        doctors, getDoctosData,
+        doctors, getDoctosData, loading,
         currencySymbol,
         backendUrl,
         token, setToken,

@@ -4,7 +4,7 @@ import TeamCard from '../components/TeamCard'
 
 const About = () => {
   return (
-    <div>
+    <div className='animate-fade-in-up'>
 
       {/* ABOUT US SECTION */}
       <div className='text-center text-2xl pt-10 text-[#707070] dark:text-white'>

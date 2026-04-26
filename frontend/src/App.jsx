@@ -14,6 +14,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify'
 import VideoConsultation from './pages/VideoConsultation'
+import ScrollToTop from './components/ScrollToTop'
+import BackToTop from './components/BackToTop'
 
 const App = () => {
   useEffect(() => {
@@ -33,6 +35,8 @@ const App = () => {
 
   return (
     <div className='bg-gradient-to-br from-blue-50 via-green-50 to-white min-h-screen dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900'>
+      <ScrollToTop />
+      <BackToTop />
       <div className='mx-2 sm:mx-[3%]'>
         <ToastContainer />
         <Navbar />

@@ -108,7 +108,7 @@ const Contact = () => {
   }
 
   return (
-    <div>
+    <div className='animate-fade-in-up'>
       {/* Header */}
       <div className='text-center text-2xl pt-10 text-[#707070] dark:text-white'>
         <p>CONTACT <span className='text-gray-700 dark:text-white font-semibold'>US</span></p>
