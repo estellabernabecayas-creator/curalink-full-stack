@@ -10,32 +10,23 @@ const Contact = () => {
     message: ''
   })
   const [errors, setErrors] = useState({})
-  const [submitStatus, setSubmitStatus] = useState(null) // 'success', 'error', or null
+  const [submitStatus, setSubmitStatus] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validateForm = () => {
     const newErrors = {}
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required'
-    }
-    
+    if (!formData.name.trim()) newErrors.name = 'Name is required'
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address'
     }
-    
-    if (!formData.subject.trim()) {
-      newErrors.subject = 'Subject is required'
-    }
-    
+    if (!formData.subject.trim()) newErrors.subject = 'Subject is required'
     if (!formData.message.trim()) {
       newErrors.message = 'Message is required'
     } else if (formData.message.trim().length < 10) {
       newErrors.message = 'Message must be at least 10 characters'
     }
-    
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -43,30 +34,22 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitStatus(null)
-    
-    if (!validateForm()) {
-      return
-    }
-    
+    if (!validateForm()) return
     setIsSubmitting(true)
-    
-    // EmailJS configuration from environment variables
+
     const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID
     const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
     const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-    
-    // Debug: Log environment variables (remove in production)
+
     console.log('EmailJS Config:', { serviceId, templateId, publicKey: publicKey ? '***' : 'missing' })
-    
-    // Check if environment variables are defined
+
     if (!serviceId || !templateId || !publicKey) {
       console.error('Missing EmailJS environment variables')
       setSubmitStatus('error')
       setIsSubmitting(false)
       return
     }
-    
-    // Template parameters for EmailJS
+
     const templateParams = {
       name: formData.name,
       email: formData.email,
@@ -74,15 +57,12 @@ const Contact = () => {
       message: formData.message,
       time: new Date().toLocaleString()
     }
-    
-    // Debug: Log template params
+
     console.log('Template Params:', templateParams)
-    
+
     try {
-      // Send email using EmailJS (single call - auto-reply handled by EmailJS dashboard)
       const result = await emailjs.send(serviceId, templateId, templateParams, publicKey)
       console.log('EmailJS Success:', result)
-      
       setSubmitStatus('success')
       setFormData({ name: '', email: '', subject: '', message: '' })
       setErrors({})
@@ -97,48 +77,31 @@ const Contact = () => {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
-    // Clear error for this field when user starts typing
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: '' })
-    }
-    // Clear submit status when user starts typing again
-    if (submitStatus) {
-      setSubmitStatus(null)
-    }
+    if (errors[name]) setErrors({ ...errors, [name]: '' })
+    if (submitStatus) setSubmitStatus(null)
   }
 
   return (
     <div className='animate-fade-in-up'>
-      {/* Header */}
-      <div className='text-center text-2xl pt-10 text-[#707070] dark:text-white'>
-        <p>CONTACT <span className='text-gray-700 dark:text-white font-semibold'>US</span></p>
-      </div>
 
-      {/* Office Info & Map Section */}
       <div className='my-10 mb-20'>
-        {/* Top Row: Image + Contact Info */}
+
+        {/* Row 1: Office Info + Image */}
         <div className='flex flex-col lg:flex-row gap-10 items-stretch mb-10'>
-          {/* Left: Contact Image */}
-          <div className='w-full lg:w-2/5'>
-            <img 
-              className='w-full h-full object-cover rounded-xl shadow-lg max-h-[500px]' 
-              src={assets.contact_image} 
-              alt="Contact CuraLink" 
-            />
-          </div>
-          
-          {/* Right: Contact Details */}
-          <div className='w-full lg:w-3/5'>
+          <div className='w-full lg:w-1/2'>
             <div className='bg-gray-50 dark:bg-slate-800/70 rounded-xl p-6 shadow-md h-full'>
-              <p className='font-semibold text-lg text-gray-900 dark:text-white mb-5 flex items-center gap-2'>
+              <div className='mb-6'>
+                <h2 className='text-2xl sm:text-3xl font-bold mb-6'>
+                <span className='text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500'>CONTACT US</span>
+              </h2>
+              </div>
+              <p className='font-semibold text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2'>
                 <svg className='w-5 h-5 text-blue-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' />
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' />
                 </svg>
                 OUR OFFICE
               </p>
-              
               <div className='space-y-4 text-sm'>
-                {/* Address */}
                 <div className='flex items-start gap-3'>
                   <svg className='w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' />
@@ -146,16 +109,14 @@ const Contact = () => {
                   </svg>
                   <p className='text-gray-600 dark:text-gray-300'>1139 Dagonoy St<br />Singalong Malate, Manila, Philippines</p>
                 </div>
-                
-                {/* Phone */}
+
                 <div className='flex items-center gap-3'>
                   <svg className='w-5 h-5 text-gray-400 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z' />
                   </svg>
                   <p className='text-gray-600 dark:text-gray-300'>(02) 8424-8070</p>
                 </div>
-                
-                {/* Email */}
+
                 <div className='flex items-center gap-3'>
                   <svg className='w-5 h-5 text-gray-400 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' />
@@ -163,8 +124,7 @@ const Contact = () => {
                   <p className='text-gray-600 dark:text-gray-300'>curalinkappointment@gmail.com</p>
                 </div>
               </div>
-              
-              {/* Office Hours */}
+
               <div className='mt-5 pt-5 border-t border-gray-200 dark:border-slate-600'>
                 <p className='font-semibold text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2'>
                   <svg className='w-5 h-5 text-green-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -178,8 +138,7 @@ const Contact = () => {
                   <p><span className='font-medium'>Last appointment:</span> 8:30 PM</p>
                 </div>
               </div>
-              
-              {/* Social Links */}
+
               <div className='mt-5 pt-5 border-t border-gray-200 dark:border-slate-600'>
                 <p className='font-semibold text-sm text-gray-900 dark:text-white mb-3'>FOLLOW US</p>
                 <div className='flex gap-4'>
@@ -202,144 +161,159 @@ const Contact = () => {
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Middle: Square Map - Centered */}
-        <div className='flex justify-center mb-10'>
-          <div className='w-full max-w-[600px] aspect-square rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-slate-600'>
-            <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.5619124151744!2d120.994410274872!3d14.567020485915384!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c9829d684179%3A0xe2c2ac116dafbaf!2s1139%20Dagonoy%2C%20Malate%2C%20Manila%2C%201004%20Metro%20Manila!5e0!3m2!1sen!2sph!4v1776797247534!5m2!1sen!2sph" 
-              width="100%" 
-              height="100%" 
-              style={{border: 0}} 
-              allowFullScreen="" 
-              loading="lazy" 
-              referrerPolicy="no-referrer-when-downgrade"
-              title="CuraLink Office Location"
-            ></iframe>
-          </div>
-        </div>
-        
-        {/* Bottom: Careers */}
-        <div className='max-w-2xl mx-auto'>
-          <div className='bg-gradient-to-r from-blue-50 to-green-50 dark:from-slate-800/50 dark:to-slate-800/30 rounded-xl p-6 border border-blue-100 dark:border-slate-700'>
-            <p className='font-semibold text-lg text-gray-900 dark:text-white mb-2'>CAREERS AT CURALINK</p>
-            <p className='text-gray-600 dark:text-gray-300 text-sm mb-4'>Interested in working with us? Contact us to learn more about opportunities at CuraLink.</p>
-          </div>
-        </div>
-      </div>
 
-      {/* Message Us Form */}
-      <div className='max-w-2xl mx-auto mb-20'>
-        <div className='text-center mb-8'>
-          <p className='text-2xl text-[#707070] dark:text-white'>MESSAGE <span className='text-gray-700 dark:text-white font-semibold'>US</span></p>
-          <p className='text-gray-500 dark:text-gray-400 mt-2'>Need help or have a concern? Fill out the form below and<br />our team will respond as soon as possible.</p>
+          <div className='w-full lg:w-1/2'>
+            <img
+              className='w-full h-full object-cover rounded-xl shadow-lg max-h-[500px]'
+              src={assets.contact_image}
+              alt="Contact CuraLink"
+            />
+          </div>
         </div>
-        
-        {/* Status Messages */}
-        {submitStatus === 'success' && (
-          <div className='mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3'>
-            <svg className='w-5 h-5 text-green-500 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
-            </svg>
-            <p className='text-green-700 dark:text-green-400 text-sm font-medium'>Your message has been sent successfully. Our team will get back to you shortly.</p>
+
+        {/* Careers Banner */}
+        <div className='mb-10'>
+          <div className='bg-gradient-to-r from-blue-50 to-green-50 dark:from-slate-800/50 dark:to-slate-800/30 rounded-xl p-6 border border-blue-100 dark:border-slate-700'>
+            <h2 className='text-2xl sm:text-3xl font-bold mb-6 text-center'>
+              <span className='text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500'>CAREERS AT CURALINK</span>
+            </h2>
+            <p className='text-gray-600 dark:text-gray-300 text-sm text-center'>Interested in working with us? Contact us to learn more about opportunities at CuraLink.</p>
           </div>
-        )}
-        
-        {submitStatus === 'error' && (
-          <div className='mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3'>
-            <svg className='w-5 h-5 text-red-500 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
-            </svg>
-            <p className='text-red-700 dark:text-red-400 text-sm font-medium'>Failed to send message. Please try again.</p>
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit} className='flex flex-col gap-5'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-1'>
-              <label className='text-sm font-medium text-gray-600 dark:text-gray-300'>Name <span className='text-red-500'>*</span></label>
-              <input
-                type="text"
-                name="name"
-                placeholder='Enter your full name'
-                value={formData.name}
-                onChange={handleChange}
-                className={`border rounded-lg px-4 py-3 focus:outline-none transition-colors dark:bg-slate-700/50 dark:text-white ${
-                  errors.name 
-                    ? 'border-red-500 focus:border-red-500' 
-                    : 'border-gray-300 dark:border-slate-600 focus:border-blue-500'
-                }`}
-              />
-              {errors.name && <p className='text-red-500 text-xs mt-1'>{errors.name}</p>}
+        </div>
+
+        {/* Row 2: Message Form (left 1/2) + Map (right 1/2) */}
+        <div className='flex flex-col lg:flex-row gap-10 items-stretch'>
+
+          {/* Left: Message Us Form */}
+          <div className='w-full lg:w-1/2'>
+            <div className='bg-gray-50 dark:bg-slate-800/70 rounded-xl p-6 shadow-md h-full flex flex-col'>
+
+              <div className='mb-6'>
+                <h2 className='text-2xl sm:text-3xl font-bold mb-6'>
+                <span className='text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500'>MESSAGE US</span>
+              </h2>
+                <p className='text-gray-500 dark:text-gray-400 mt-2 text-sm'>Need help or have a concern? Fill out the form below and our team will respond as soon as possible.</p>
+              </div>
+
+              {submitStatus === 'success' && (
+                <div className='mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3'>
+                  <svg className='w-5 h-5 text-green-500 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+                  </svg>
+                  <p className='text-green-700 dark:text-green-400 text-sm font-medium'>Your message has been sent successfully. Our team will get back to you shortly.</p>
+                </div>
+              )}
+
+              {submitStatus === 'error' && (
+                <div className='mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3'>
+                  <svg className='w-5 h-5 text-red-500 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
+                  </svg>
+                  <p className='text-red-700 dark:text-red-400 text-sm font-medium'>Failed to send message. Please try again.</p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className='flex flex-col gap-4 flex-1'>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div className='flex flex-col gap-1'>
+                    <label className='text-sm font-medium text-gray-600 dark:text-gray-300'>Name <span className='text-red-500'>*</span></label>
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder='Enter your full name'
+                      value={formData.name}
+                      onChange={handleChange}
+                      className={`border rounded-lg px-4 py-3 focus:outline-none transition-colors dark:bg-slate-700/50 dark:text-white ${
+                        errors.name ? 'border-red-500 focus:border-red-500' : 'border-gray-300 dark:border-slate-600 focus:border-blue-500'
+                      }`}
+                    />
+                    {errors.name && <p className='text-red-500 text-xs mt-1'>{errors.name}</p>}
+                  </div>
+                  <div className='flex flex-col gap-1'>
+                    <label className='text-sm font-medium text-gray-600 dark:text-gray-300'>Email <span className='text-red-500'>*</span></label>
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder='example@gmail.com'
+                      value={formData.email}
+                      onChange={handleChange}
+                      className={`border rounded-lg px-4 py-3 focus:outline-none transition-colors dark:bg-slate-700/50 dark:text-white ${
+                        errors.email ? 'border-red-500 focus:border-red-500' : 'border-gray-300 dark:border-slate-600 focus:border-blue-500'
+                      }`}
+                    />
+                    {errors.email && <p className='text-red-500 text-xs mt-1'>{errors.email}</p>}
+                  </div>
+                </div>
+
+                <div className='flex flex-col gap-1'>
+                  <label className='text-sm font-medium text-gray-600 dark:text-gray-300'>Subject <span className='text-red-500'>*</span></label>
+                  <input
+                    type="text"
+                    name="subject"
+                    placeholder='What is your message about?'
+                    value={formData.subject}
+                    onChange={handleChange}
+                    className={`border rounded-lg px-4 py-3 focus:outline-none transition-colors dark:bg-slate-700/50 dark:text-white ${
+                      errors.subject ? 'border-red-500 focus:border-red-500' : 'border-gray-300 dark:border-slate-600 focus:border-blue-500'
+                    }`}
+                  />
+                  {errors.subject && <p className='text-red-500 text-xs mt-1'>{errors.subject}</p>}
+                </div>
+
+                <div className='flex flex-col gap-1 flex-1'>
+                  <label className='text-sm font-medium text-gray-600 dark:text-gray-300'>Message <span className='text-red-500'>*</span></label>
+                  <textarea
+                    name="message"
+                    placeholder='Type your message here...'
+                    rows="5"
+                    value={formData.message}
+                    onChange={handleChange}
+                    className={`border rounded-lg px-4 py-3 focus:outline-none transition-colors resize-none dark:bg-slate-700/50 dark:text-white ${
+                      errors.message ? 'border-red-500 focus:border-red-500' : 'border-gray-300 dark:border-slate-600 focus:border-blue-500'
+                    }`}
+                  />
+                  {errors.message && <p className='text-red-500 text-xs mt-1'>{errors.message}</p>}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className='bg-gradient-to-r from-blue-600 to-emerald-500 text-white px-8 py-3 rounded-full font-medium hover:from-blue-700 hover:to-emerald-600 transition-all duration-300 shadow-md hover:shadow-lg w-full md:w-auto md:self-center mt-2 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2'
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className='w-5 h-5 animate-spin' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
+                        <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'></path>
+                      </svg>
+                      Sending...
+                    </>
+                  ) : (
+                    'Send Message'
+                  )}
+                </button>
+              </form>
+
             </div>
-            <div className='flex flex-col gap-1'>
-              <label className='text-sm font-medium text-gray-600 dark:text-gray-300'>Email <span className='text-red-500'>*</span></label>
-              <input
-                type="email"
-                name="email"
-                placeholder='example@gmail.com'
-                value={formData.email}
-                onChange={handleChange}
-                className={`border rounded-lg px-4 py-3 focus:outline-none transition-colors dark:bg-slate-700/50 dark:text-white ${
-                  errors.email 
-                    ? 'border-red-500 focus:border-red-500' 
-                    : 'border-gray-300 dark:border-slate-600 focus:border-blue-500'
-                }`}
-              />
-              {errors.email && <p className='text-red-500 text-xs mt-1'>{errors.email}</p>}
+          </div>
+
+          {/* Right: Map */}
+          <div className='w-full lg:w-1/2'>
+            <div className='rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-slate-600 h-full min-h-[480px]'>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.5619124151744!2d120.994410274872!3d14.567020485915384!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c9829d684179%3A0xe2c2ac116dafbaf!2s1139%20Dagonoy%2C%20Malate%2C%20Manila%2C%201004%20Metro%20Manila!5e0!3m2!1sen!2sph!4v1776797247534!5m2!1sen!2sph"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="CuraLink Office Location"
+              ></iframe>
             </div>
           </div>
-          <div className='flex flex-col gap-1'>
-            <label className='text-sm font-medium text-gray-600 dark:text-gray-300'>Subject <span className='text-red-500'>*</span></label>
-            <input
-              type="text"
-              name="subject"
-              placeholder='What is your message about?'
-              value={formData.subject}
-              onChange={handleChange}
-              className={`border rounded-lg px-4 py-3 focus:outline-none transition-colors dark:bg-slate-700/50 dark:text-white ${
-                errors.subject 
-                  ? 'border-red-500 focus:border-red-500' 
-                  : 'border-gray-300 dark:border-slate-600 focus:border-blue-500'
-              }`}
-            />
-            {errors.subject && <p className='text-red-500 text-xs mt-1'>{errors.subject}</p>}
-          </div>
-          <div className='flex flex-col gap-1'>
-            <label className='text-sm font-medium text-gray-600 dark:text-gray-300'>Message <span className='text-red-500'>*</span></label>
-            <textarea
-              name="message"
-              placeholder='Type your message here...'
-              rows="5"
-              value={formData.message}
-              onChange={handleChange}
-              className={`border rounded-lg px-4 py-3 focus:outline-none transition-colors resize-none dark:bg-slate-700/50 dark:text-white ${
-                errors.message 
-                  ? 'border-red-500 focus:border-red-500' 
-                  : 'border-gray-300 dark:border-slate-600 focus:border-blue-500'
-              }`}
-            />
-            {errors.message && <p className='text-red-500 text-xs mt-1'>{errors.message}</p>}
-          </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className='bg-gradient-to-r from-blue-600 to-emerald-500 text-white px-8 py-3 rounded-full font-medium hover:from-blue-700 hover:to-emerald-600 transition-all duration-300 shadow-md hover:shadow-lg w-full md:w-auto md:self-center mt-2 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2'
-          >
-            {isSubmitting ? (
-              <>
-                <svg className='w-5 h-5 animate-spin' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                  <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
-                  <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'></path>
-                </svg>
-                Sending...
-              </>
-            ) : (
-              'Send Message'
-            )}
-          </button>
-        </form>
+
+        </div>
       </div>
 
     </div>
