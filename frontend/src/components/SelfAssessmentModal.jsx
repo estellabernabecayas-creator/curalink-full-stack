@@ -328,7 +328,6 @@ const ResultsScreen = ({ scores, onClose, onFindDoctors }) => {
     // Convert scores object to array and sort by score descending
     const sortedScores = Object.entries(scores).sort(([,a], [,b]) => b - a)
     const maxScore = sortedScores[0][1]
-    const secondScore = sortedScores[1][1]
     const topSpecialty = sortedScores[0][0]
     
     // Check for low scores: if all scores are less than 4, return General Physician
@@ -337,12 +336,7 @@ const ResultsScreen = ({ scores, onClose, onFindDoctors }) => {
       return { specialty: 'General physician', score: maxScore }
     }
     
-    // Check for tie: if difference between top 2 is ≤ 2 points, return General Physician as fallback
-    if (maxScore - secondScore <= 2) {
-      return { specialty: 'General physician', score: maxScore }
-    }
-    
-    // Return the clear winner
+    // Always return the highest scoring specialty
     return { specialty: topSpecialty, score: maxScore }
   }
 
