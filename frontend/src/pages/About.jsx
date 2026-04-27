@@ -9,17 +9,7 @@ const About = () => {
       {/* MAIN CONTENT - Single unified card */}
       <div className="flex flex-col md:flex-row gap-12 items-stretch mb-20">
         
-        {/* Left Side - Image */}
-        <div className="md:w-1/2 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-2xl blur-2xl opacity-20"></div>
-          <img 
-            className="relative w-full h-full object-cover rounded-2xl shadow-xl min-h-[400px]" 
-            src={assets.about_image} 
-            alt="About CuraLink" 
-          />
-        </div>
-
-        {/* Right Side - All Content in ONE Card */}
+        {/* Left Side - All Content in ONE Card */}
         <div className="md:w-1/2">
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-white/20 dark:border-white/10 rounded-2xl p-8 shadow-lg h-full flex flex-col justify-center">
             
@@ -61,6 +51,16 @@ const About = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Right Side - Image */}
+        <div className="md:w-1/2 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 rounded-2xl blur-2xl opacity-20"></div>
+          <img 
+            className="relative w-full h-full object-cover rounded-2xl shadow-xl min-h-[400px]" 
+            src={assets.about_image} 
+            alt="About CuraLink" 
+          />
         </div>
       </div>
 
