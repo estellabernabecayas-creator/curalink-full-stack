@@ -181,6 +181,10 @@ const Doctors = () => {
                     onClick={() => {
                       if (!speciality) return
                       navigate('/doctors')
+                      // Auto-collapse filter on mobile after selection
+                      if (window.innerWidth < 640) {
+                        setShowFilter(false)
+                      }
                       setTimeout(() => {
                         window.scrollTo(0, 100)
                         document.documentElement.scrollTop = 100
@@ -233,6 +237,10 @@ const Doctors = () => {
                         onClick={() => {
                           if (isActive) return
                           navigate(`/doctors/${spec}`)
+                          // Auto-collapse filter on mobile after selection
+                          if (window.innerWidth < 640) {
+                            setShowFilter(false)
+                          }
                           setTimeout(() => {
                             window.scrollTo(0, 100)
                             document.documentElement.scrollTop = 100
@@ -279,7 +287,9 @@ const Doctors = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">No doctors found</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
+                No {speciality || 'doctors'} found
+              </h3>
               <p className="text-gray-500 dark:text-gray-400">Try adjusting your filter or check back later</p>
               <button 
                 onClick={() => navigate('/doctors')}
