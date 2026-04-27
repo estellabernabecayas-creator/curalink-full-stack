@@ -217,23 +217,8 @@ const About = () => {
 
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6'>
           <TeamCard 
-            image={assets.pic1 || '/pic1.png'} 
-            name="John Rupert Rollon" 
-            role="Back-end Developer" 
-            email="upet2541@gmail.com"
-            facebook="https://www.facebook.com/john.r.rollon.1430"
-            instagram="https://www.instagram.com/roll_ooon/?hl=en"
-          />
-          <TeamCard 
-            image={assets.pic2 || '/pic2.png'} 
-            name="John Basty Almario" 
-            role="Front-end Developer" 
-            email="johnbastyalmario595@gmail.com"
-            facebook="https://www.facebook.com/kwentomosaken21"
-            instagram="https://www.instagram.com/wewbasty/?hl=en"
-          />
-          <TeamCard 
             image={assets.pic3 || '/pic3.png'} 
+            video={assets.glasseson1}
             name="Carl Isaac Celeste" 
             role="QA Tester" 
             email="isaacceleste4@gmail.com"
@@ -241,20 +226,40 @@ const About = () => {
             instagram="https://www.instagram.com/ice__flakes/?hl=en"
           />
           <TeamCard 
-            image={assets.pic4 || '/pic4.png'} 
-            name="Nelson Antonino" 
-            role="Documentation & Research" 
-            email="nelsonantoninomempin@gmail.com"
-            facebook="https://www.facebook.com/nxllantonino"
-            instagram="https://www.instagram.com/itzz.nelx_/?hl=en"
+            image={assets.pic1 || '/pic1.png'} 
+            video={assets.glasseson3}
+            name="John Rupert Rollon" 
+            role="Back-end Developer" 
+            email="upet2541@gmail.com"
+            facebook="https://www.facebook.com/john.r.rollon.1430"
+            instagram="https://www.instagram.com/roll_ooon/?hl=en"
           />
           <TeamCard 
             image={assets.pic5 || '/pic5.png'} 
+            video={assets.glasseson4}
             name="Jiro Daez" 
             role="UI/UX Designer" 
             email="jirojirodaez2107@gmail.com"
             facebook="https://www.facebook.com/jiro.daez"
             instagram="https://www.instagram.com/jirodaez/?hl=en"
+          />
+          <TeamCard 
+            image={assets.pic2 || '/pic2.png'} 
+            video={assets.glasseson5}
+            name="John Basty Almario" 
+            role="Front-end Developer" 
+            email="johnbastyalmario595@gmail.com"
+            facebook="https://www.facebook.com/kwentomosaken21"
+            instagram="https://www.instagram.com/wewbasty/?hl=en"
+          />
+          <TeamCard 
+            image={assets.pic4 || '/pic4.png'} 
+            video={assets.glasseson2}
+            name="Nelson Antonino" 
+            role="Documentation & Research" 
+            email="nelsonantoninomempin@gmail.com"
+            facebook="https://www.facebook.com/nxllantonino"
+            instagram="https://www.instagram.com/itzz.nelx_/?hl=en"
           />
         </div>
       </div>

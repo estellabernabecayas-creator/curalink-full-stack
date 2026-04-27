@@ -5,6 +5,11 @@ import contact_image from './contact_image.png'
 import about_image from './about_image.png'
 import hospital_video from './hospital.mp4'
 import medical_video from './medical.mp4'
+import glasseson1 from './glasseson1.mp4'
+import glasseson2 from './glasseson2.mp4'
+import glasseson3 from './glasseson3.mp4'
+import glasseson4 from './glasseson4.mp4'
+import glasseson5 from './glasseson5.mp4'
 import logo from './logo.svg'
 import dropdown_icon from './dropdown_icon.svg'
 import menu_icon from './menu_icon.svg'
@@ -65,6 +70,11 @@ export const assets = {
     paymongo_logo,
     hospital_video,
     medical_video,
+    glasseson1,
+    glasseson2,
+    glasseson3,
+    glasseson4,
+    glasseson5,
     pic1,
     pic2,
     pic3,
