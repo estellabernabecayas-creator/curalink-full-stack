@@ -46,7 +46,7 @@ const About = () => {
             
             {/* Quote */}
             <div className="mt-6 pt-4 border-t border-gray-100 dark:border-slate-700">
-              <p className="text-lg italic text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500 font-medium">
+              <p className="text-lg italic text-gray-900 dark:text-white font-medium">
                 "Smarter Healthcare, Simplified Scheduling"
               </p>
             </div>
