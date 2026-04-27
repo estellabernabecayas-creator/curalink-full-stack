@@ -236,6 +236,38 @@ const doctorDashboard = async (req, res) => {
     }
 }
 
+// API to change doctor password
+const changeDoctorPassword = async (req, res) => {
+    try {
+        const { docId, currentPassword, newPassword } = req.body
+
+        // Find doctor
+        const doctor = await doctorModel.findById(docId)
+        if (!doctor) {
+            return res.json({ success: false, message: 'Doctor not found' })
+        }
+
+        // Verify current password
+        const isMatch = await bcrypt.compare(currentPassword, doctor.password)
+        if (!isMatch) {
+            return res.json({ success: false, message: 'Current password is incorrect' })
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(newPassword, salt)
+
+        // Update password
+        await doctorModel.findByIdAndUpdate(docId, { password: hashedPassword })
+
+        res.json({ success: true, message: 'Password changed successfully' })
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
 export {
     loginDoctor,
     appointmentsDoctor,
@@ -246,5 +278,6 @@ export {
     doctorDashboard,
     doctorProfile,
     updateDoctorProfile,
-    getAppointment
+    getAppointment,
+    changeDoctorPassword
 }
