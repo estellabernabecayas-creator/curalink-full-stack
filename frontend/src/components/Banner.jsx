@@ -32,7 +32,7 @@ const Banner = () => {
                 <div className='text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold text-white'>
                     {isLoggedIn ? (
                         <>
-                            <p>Welcome back, {firstName} 👋</p>
+                            <p>Welcome back, {firstName}</p>
                             <p className='mt-4 text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal'>Your health journey continues here.</p>
                         </>
                     ) : (
