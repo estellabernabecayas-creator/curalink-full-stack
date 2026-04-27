@@ -14,6 +14,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify'
 import VideoConsultation from './pages/VideoConsultation'
+import ResetPassword from './pages/ResetPassword'
 import ScrollToTop from './components/ScrollToTop'
 import BackToTop from './components/BackToTop'
 
@@ -53,6 +54,7 @@ const App = () => {
           <Route path='/verify' element={<Verify />} />
           <Route path='/video-consultation/:appointmentId' element={<VideoConsultation />} />
           <Route path='/video-consultation/:appointmentId' element={<VideoConsultation />} />
+          <Route path='/reset-password' element={<ResetPassword />} />
         </Routes>
         <Footer />
       </div>

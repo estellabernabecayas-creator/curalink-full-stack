@@ -7,6 +7,7 @@ import appointmentModel from "../models/appointmentModel.js";
 import { v2 as cloudinary } from 'cloudinary'
 import stripe from "stripe";
 import axios from 'axios';
+import nodemailer from 'nodemailer';
 import { sendBookingNotification, sendCancellationNotification, sendPatientBookingConfirmation, sendWelcomeEmail } from '../utils/emailService.js';
 
 // Gateway Initialize
@@ -539,6 +540,191 @@ const confirmCashPayment = async (req, res) => {
     }
 }
 
+// API to change user password
+const changePassword = async (req, res) => {
+    try {
+        const { userId, currentPassword, newPassword } = req.body
+
+        if (!currentPassword || !newPassword) {
+            return res.json({ success: false, message: 'Missing password data' })
+        }
+
+        // Validate new password strength
+        if (newPassword.length < 8) {
+            return res.json({ success: false, message: 'New password must be at least 8 characters' })
+        }
+
+        // Get user from database
+        const user = await userModel.findById(userId)
+
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' })
+        }
+
+        // Verify current password
+        const isMatch = await bcrypt.compare(currentPassword, user.password)
+
+        if (!isMatch) {
+            return res.json({ success: false, message: 'Current password is incorrect' })
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(newPassword, salt)
+
+        // Update password in database
+        await userModel.findByIdAndUpdate(userId, { password: hashedPassword })
+
+        res.json({ success: true, message: 'Password updated successfully' })
+
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body
+
+        console.log('Forgot password request for email:', email)
+
+        if (!email) {
+            return res.json({ success: false, message: 'Email is required' })
+        }
+
+        // Check if user exists
+        const user = await userModel.findOne({ email })
+
+        if (!user) {
+            console.log('User not found in database:', email)
+            // Don't reveal if email exists for security
+            return res.json({ success: true, message: 'The password reset link has been sent.' })
+        }
+
+        console.log('User found:', user.email, user.name)
+
+        // Generate reset token (expires in 1 hour)
+        const resetToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' })
+        console.log('Reset token generated')
+
+        // Store reset token in user document
+        await userModel.findByIdAndUpdate(user._id, { resetToken })
+        console.log('Reset token stored in database')
+
+        // Send email using nodemailer
+        console.log('Creating email transporter...')
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD
+            }
+        })
+
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`
+        console.log('Reset URL:', resetUrl)
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Password Reset - CuraLink',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #2563eb;">Password Reset Request</h2>
+                    <p>Hello ${user.name},</p>
+                    <p>We received a request to reset your password for your CuraLink account.</p>
+                    <p>Click the button below to reset your password:</p>
+                    <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">Reset Password</a>
+                    <p>Or copy and paste this link into your browser:</p>
+                    <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+                    <p>This link will expire in 1 hour.</p>
+                    <p>If you didn't request this password reset, please ignore this email.</p>
+                    <p>Best regards,<br>CuraLink Team</p>
+                </div>
+            `
+        }
+
+        console.log('Sending email to:', email)
+        const info = await transporter.sendMail(mailOptions)
+        console.log('Email sent successfully:', info.messageId)
+
+        res.json({ success: true, message: 'Link sent.' })
+
+    } catch (error) {
+        console.error('Forgot password error:', error)
+        console.error('Error details:', error.code, error.message)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body
+
+        console.log('Reset password request received')
+        console.log('Token provided:', token ? 'Yes (first 20 chars): ' + token.substring(0, 20) + '...' : 'No')
+        console.log('New password provided:', newPassword ? 'Yes' : 'No')
+
+        if (!token || !newPassword) {
+            return res.json({ success: false, message: 'Missing required fields' })
+        }
+
+        // Validate new password strength
+        if (newPassword.length < 8) {
+            return res.json({ success: false, message: 'New password must be at least 8 characters' })
+        }
+
+        // Verify token
+        let decoded
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET)
+            console.log('Token decoded successfully, userId:', decoded.userId)
+        } catch (jwtError) {
+            console.log('JWT verification failed:', jwtError.message)
+            return res.json({ success: false, message: 'Invalid or expired reset token' })
+        }
+        
+        const userId = decoded.userId
+
+        // Find user with matching reset token
+        const user = await userModel.findOne({ _id: userId, resetToken: token })
+        
+        console.log('Looking for user with ID:', userId)
+        console.log('User found:', user ? 'Yes' : 'No')
+        
+        if (!user) {
+            // Check if user exists without token match
+            const userWithoutToken = await userModel.findById(userId)
+            console.log('User exists without token check:', userWithoutToken ? 'Yes' : 'No')
+            if (userWithoutToken) {
+                console.log('Stored resetToken:', userWithoutToken.resetToken ? 'Exists' : 'Missing')
+                console.log('Token match:', userWithoutToken.resetToken === token ? 'Yes' : 'No')
+            }
+            return res.json({ success: false, message: 'Invalid or expired reset token' })
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(newPassword, salt)
+
+        // Update password and clear reset token
+        await userModel.findByIdAndUpdate(userId, { 
+            password: hashedPassword,
+            resetToken: null 
+        })
+
+        res.json({ success: true, message: 'Password reset successfully' })
+
+    } catch (error) {
+        console.log('Reset password error:', error)
+        if (error.name === 'TokenExpiredError') {
+            return res.json({ success: false, message: 'Reset token has expired. Please request a new one.' })
+        }
+        res.json({ success: false, message: error.message })
+    }
+}
+
 export {
     loginUser,
     registerUser,
@@ -552,5 +738,8 @@ export {
     paymentStripe,
     verifyStripe,
     paymentCash,
-    confirmCashPayment
+    confirmCashPayment,
+    changePassword,
+    forgotPassword,
+    resetPassword
 }

@@ -4,7 +4,7 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { auth } from '../firebase'
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
+import { RecaptchaVerifier, signInWithPhoneNumber, sendPasswordResetEmail, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
 import ProfileCompletionModal from '../components/ProfileCompletionModal'
 
 const countryCodes = [
@@ -27,7 +27,7 @@ const countryCodes = [
 
 const Login = () => {
 
-  const [state, setState] = useState('Sign Up')
+  const [state, setState] = useState('Login')
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -84,6 +84,12 @@ const Login = () => {
   const [isNewUser, setIsNewUser] = useState(false)
   const [profileCompletionValue, setProfileCompletionValue] = useState(20)
   const showModalRef = useRef(false) // Ref for synchronous checks
+
+  // Forgot password modal state
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('')
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false)
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false)
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -209,6 +215,23 @@ const Login = () => {
   // Register user after OTP verification
   const registerUser = async () => {
     try {
+      // Step 1: Create Firebase Auth user
+      try {
+        await createUserWithEmailAndPassword(auth, email, password)
+      } catch (firebaseError) {
+        console.error('Firebase registration error:', firebaseError)
+        // If user already exists in Firebase, try to sign them in
+        if (firebaseError.code === 'auth/email-already-in-use') {
+          try {
+            await signInWithEmailAndPassword(auth, email, password)
+          } catch (signInError) {
+            console.error('Firebase sign-in after existing user error:', signInError)
+          }
+        }
+        // Continue with backend registration regardless
+      }
+
+      // Step 2: Register with backend
       const { data } = await axios.post(backendUrl + '/api/user/register', { name, email, password, countryCode, phoneNumber })
 
       if (data.success) {
@@ -321,6 +344,40 @@ const Login = () => {
   // Perform actual login after reCAPTCHA verification
   const performLogin = async () => {
     try {
+      // Step 1: Authenticate with Firebase (or create account for existing users)
+      let firebaseSuccess = false
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        firebaseSuccess = true
+        console.log('Firebase login successful:', userCredential.user.email)
+      } catch (firebaseError) {
+        console.error('Firebase login error:', firebaseError.code, firebaseError.message)
+        
+        // If user doesn't exist in Firebase, create account for existing users
+        if (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/invalid-credential') {
+          console.log('Firebase user not found, creating account for existing user...')
+          try {
+            await createUserWithEmailAndPassword(auth, email, password)
+            firebaseSuccess = true
+            console.log('Firebase account created for existing user:', email)
+          } catch (createError) {
+            console.error('Firebase account creation error:', createError)
+            // If account already exists (race condition), try signing in again
+            if (createError.code === 'auth/email-already-in-use') {
+              try {
+                await signInWithEmailAndPassword(auth, email, password)
+                firebaseSuccess = true
+                console.log('Signed in to existing Firebase account:', email)
+              } catch (retryError) {
+                console.error('Firebase retry sign-in error:', retryError)
+              }
+            }
+          }
+        }
+        // Continue with backend login regardless of Firebase status
+      }
+
+      // Step 2: Authenticate with backend
       const { data } = await axios.post(backendUrl + '/api/user/login', { email, password })
 
       if (data.success) {
@@ -432,6 +489,10 @@ const Login = () => {
     setIsNewUser(false)
     setShowProfileModal(false)
     showModalRef.current = false
+    // Clear forgot password state
+    setShowForgotPassword(false)
+    setForgotPasswordEmail('')
+    setForgotPasswordSuccess(false)
     // Clear reCAPTCHA verifiers
     if (window.recaptchaVerifier) {
       window.recaptchaVerifier.clear()
@@ -447,53 +508,85 @@ const Login = () => {
     }
   }
 
-  return (
-    <form onSubmit={onSubmitHandler} className='min-h-[80vh] flex items-center' autoComplete="off">
-      <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border border-white/20 dark:border-white/10 rounded-xl text-gray-700 dark:text-gray-200 text-sm shadow-xl bg-white/70 dark:bg-slate-800/60 backdrop-blur-lg'>
-        {/* Hidden dummy fields to trick browser autofill */}
-        <input type="text" style={{ display: 'none' }} autoComplete="off" />
-        <input type="password" style={{ display: 'none' }} autoComplete="off" />
-        
-        <p className='text-2xl font-semibold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent dark:drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]'>{state === 'Sign Up' ? 'Create Account' : 'Login'}</p>
-        <p>Please {state === 'Sign Up' ? 'sign up' : 'log in'} to book appointment</p>
-        {state === 'Sign Up'
-          ? <div className='w-full '>
-            <p>Full Name</p>
-            <input onChange={(e) => setName(e.target.value)} value={name} placeholder='e.g. Juan Dela Cruz' className='border border-blue-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded w-full p-2 mt-1 focus:border-blue-400 focus:outline-none transition-colors' type="text" required autoComplete="off" />
-          </div>
-          : null
-        }
-        <div className='w-full '>
-          <p>Email</p>
-          <input onChange={(e) => setEmail(e.target.value)} value={email} placeholder='example@gmail.com' className='border border-blue-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded w-full p-2 mt-1 focus:border-blue-400 focus:outline-none transition-colors' type="email" required autoComplete="nope" />
-        </div>
+  // Handle forgot password submit
+  const handleForgotPassword = async (e) => {
+    e.preventDefault()
+    e.stopPropagation() // Prevent bubbling to parent form
+    if (!forgotPasswordEmail) {
+      toast.error('Please enter your email address')
+      return
+    }
 
-        {/* Contact Number - Only for Sign Up */}
-        {state === 'Sign Up' && (
-          <div className='w-full'>
-            <p>Contact Number</p>
-            <div className='flex gap-2 mt-1'>
-              <select
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className='border border-blue-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded p-2 focus:border-blue-400 focus:outline-none transition-colors bg-white'
-              >
-                {countryCodes.map((country) => (
-                  <option key={country.code} value={country.code}>
-                    {country.code} {country.country}
-                  </option>
-                ))}
-              </select>
-              <input
-                onChange={handlePhoneChange}
-                value={phoneNumber}
-                className='border border-blue-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded w-full p-2 focus:border-blue-400 focus:outline-none transition-colors'
-                type="tel"
-                required
-              />
+    setForgotPasswordLoading(true)
+    try {
+      console.log('Sending password reset email to:', forgotPasswordEmail)
+      const { data } = await axios.post(backendUrl + '/api/user/forgot-password', { email: forgotPasswordEmail })
+      console.log('Password reset email sent successfully')
+      setForgotPasswordSuccess(true)
+      toast.success(data.message || 'Password reset link sent to your email!')
+    } catch (error) {
+      console.error('Forgot password error:', error)
+      toast.error(error.response?.data?.message || 'Failed to send reset link. Please try again.')
+    } finally {
+      setForgotPasswordLoading(false)
+    }
+  }
+
+  // Close forgot password modal
+  const closeForgotPassword = () => {
+    setShowForgotPassword(false)
+    setForgotPasswordEmail('')
+    setForgotPasswordSuccess(false)
+  }
+
+  return (
+    <>
+      <form onSubmit={onSubmitHandler} className='min-h-[80vh] flex items-center' autoComplete="off">
+        <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border border-white/20 dark:border-white/10 rounded-xl text-gray-700 dark:text-gray-200 text-sm shadow-xl bg-white/70 dark:bg-slate-800/60 backdrop-blur-lg'>
+          {/* Hidden dummy fields to trick browser autofill */}
+          <input type="text" style={{ display: 'none' }} autoComplete="off" />
+          <input type="password" style={{ display: 'none' }} autoComplete="off" />
+          
+          <p className='text-2xl font-semibold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent dark:drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]'>{state === 'Sign Up' ? 'Create Account' : 'Login'}</p>
+          <p>Please {state === 'Sign Up' ? 'sign up' : 'log in'} to book appointment</p>
+          {state === 'Sign Up'
+            ? <div className='w-full '>
+              <p>Full Name</p>
+              <input onChange={(e) => setName(e.target.value)} value={name} placeholder='e.g. Juan Dela Cruz' className='border border-blue-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded w-full p-2 mt-1 focus:border-blue-400 focus:outline-none transition-colors' type="text" required autoComplete="off" />
             </div>
+            : null
+          }
+          <div className='w-full '>
+            <p>Email</p>
+            <input onChange={(e) => setEmail(e.target.value)} value={email} placeholder='example@gmail.com' className='border border-blue-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded w-full p-2 mt-1 focus:border-blue-400 focus:outline-none transition-colors' type="email" required autoComplete="nope" />
           </div>
-        )}
+
+          {/* Contact Number - Only for Sign Up */}
+          {state === 'Sign Up' && (
+            <div className='w-full'>
+              <p>Contact Number</p>
+              <div className='flex gap-2 mt-1'>
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className='border border-blue-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded p-2 focus:border-blue-400 focus:outline-none transition-colors bg-white'
+                >
+                  {countryCodes.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.code} {country.country}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  onChange={handlePhoneChange}
+                  value={phoneNumber}
+                  className='border border-blue-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white rounded w-full p-2 focus:border-blue-400 focus:outline-none transition-colors'
+                  type="tel"
+                  required
+                />
+              </div>
+            </div>
+          )}
 
         <div className='w-full'>
           <p>Password</p>
@@ -597,10 +690,18 @@ const Login = () => {
 
         {state === 'Sign Up'
           ? <p>Already have an account? <span onClick={() => handleSwitchState('Login')} className='text-blue-600 hover:text-blue-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(59,130,246,0.4)]'>Login here</span></p>
-          : <p>Create a new account? <span onClick={() => handleSwitchState('Sign Up')} className='text-blue-600 hover:text-blue-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(59,130,246,0.4)]'>Click here</span></p>
+          : <>
+              <p>Create a new account? <span onClick={() => handleSwitchState('Sign Up')} className='text-blue-600 hover:text-blue-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(59,130,246,0.4)]'>Click here</span></p>
+              <p className='text-center'>
+                <span onClick={() => setShowForgotPassword(true)} className='text-sm text-gray-500 hover:text-blue-600 underline cursor-pointer transition-colors'>
+                  Forgot Password?
+                </span>
+              </p>
+            </>
         }
         <p><span onClick={() => window.open('https://curalink-admin-xl5a.onrender.com/admin-login', '_blank')} className='text-green-600 hover:text-green-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(34,197,94,0.4)]'>Admin login</span> or <span onClick={() => window.open('https://curalink-admin-xl5a.onrender.com/doctor-login', '_blank')} className='text-blue-600 hover:text-blue-700 underline cursor-pointer transition-colors dark:drop-shadow-[0_0_4px_rgba(59,130,246,0.4)]'>Doctor login</span></p>
       </div>
+      </form>
 
       {/* Profile Completion Modal */}
       <ProfileCompletionModal 
@@ -619,7 +720,89 @@ const Login = () => {
         }}
         profileCompletion={profileCompletionValue}
       />
-    </form>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className='fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
+          <div className='bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200'>
+            <div className='flex items-center justify-between mb-6'>
+              <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>Reset Password</h2>
+              <button 
+                onClick={closeForgotPassword}
+                className='text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors'
+              >
+                <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                </svg>
+              </button>
+            </div>
+
+            {forgotPasswordSuccess ? (
+              <div className='text-center py-4'>
+                <div className='w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4'>
+                  <svg className='w-8 h-8 text-green-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+                  </svg>
+                </div>
+                <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>Reset Link Sent!</h3>
+                <p className='text-gray-600 dark:text-gray-400 text-sm mb-6'>
+                  We've sent a password reset link to <strong>{forgotPasswordEmail}</strong>. Please check your email and follow the instructions to reset your password.
+                </p>
+                <button 
+                  onClick={closeForgotPassword}
+                  className='w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition-colors'
+                >
+                  Back to Login
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotPassword}>
+                <p className='text-gray-600 dark:text-gray-400 text-sm mb-4'>
+                  Enter your email address and we'll send you a link to reset your password.
+                </p>
+                <div className='mb-4'>
+                  <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Email Address</label>
+                  <input 
+                    type='email'
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                    placeholder='example@gmail.com'
+                    className='w-full border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all'
+                    required
+                  />
+                </div>
+                <div className='flex gap-3'>
+                  <button 
+                    type='button'
+                    onClick={closeForgotPassword}
+                    className='flex-1 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-300 py-2.5 rounded-lg font-medium transition-colors'
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type='submit'
+                    disabled={forgotPasswordLoading}
+                    className='flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2'
+                  >
+                    {forgotPasswordLoading ? (
+                      <>
+                        <svg className='animate-spin h-4 w-4' viewBox='0 0 24 24'>
+                          <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' fill='none' />
+                          <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z' />
+                        </svg>
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Reset Link'
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

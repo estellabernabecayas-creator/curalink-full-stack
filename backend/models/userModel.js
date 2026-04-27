@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
     gender: { type: String, default: 'Not Selected' },
     dob: { type: String, default: 'Not Selected' },
     password: { type: String, required: true },
-    profileCompleted: { type: Boolean, default: false }
+    profileCompleted: { type: Boolean, default: false },
+    resetToken: { type: String, default: null }
 })
 
 const userModel = mongoose.models.user || mongoose.model("user", userSchema);

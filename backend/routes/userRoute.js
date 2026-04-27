@@ -1,5 +1,5 @@
 import express from 'express';
-import { loginUser, registerUser, getProfile, updateProfile, bookAppointment, listAppointment, getAppointment, cancelAppointment, paymentPayMongo, paymentStripe, verifyStripe, paymentCash, confirmCashPayment } from '../controllers/userController.js';
+import { loginUser, registerUser, getProfile, updateProfile, bookAppointment, listAppointment, getAppointment, cancelAppointment, paymentPayMongo, paymentStripe, verifyStripe, paymentCash, confirmCashPayment, changePassword, forgotPassword, resetPassword } from '../controllers/userController.js';
 import upload from '../middleware/multer.js';
 import authUser from '../middleware/authUser.js';
 const userRouter = express.Router();
@@ -18,5 +18,8 @@ userRouter.post("/payment-stripe", authUser, paymentStripe)
 userRouter.post("/payment-cash", authUser, paymentCash)
 userRouter.post("/confirm-cash-payment", authUser, confirmCashPayment)
 userRouter.post("/verifyStripe", authUser, verifyStripe)
+userRouter.post("/change-password", authUser, changePassword)
+userRouter.post("/forgot-password", forgotPassword)
+userRouter.post("/reset-password", resetPassword)
 
 export default userRouter;
