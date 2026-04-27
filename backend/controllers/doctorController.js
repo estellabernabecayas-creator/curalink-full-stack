@@ -204,8 +204,8 @@ const doctorDashboard = async (req, res) => {
         let earnings = 0
 
         appointments.map((item) => {
-            if (item.isCompleted && item.payment) {
-                // Only count earnings for completed AND paid appointments
+            if (item.payment) {
+                // Count earnings for all paid appointments
                 // Use doctorEarnings (80%) if available, otherwise calculate 80% of amount
                 earnings += item.doctorEarnings || (item.amount * 0.8)
             }
