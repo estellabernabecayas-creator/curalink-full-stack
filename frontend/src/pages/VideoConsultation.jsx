@@ -101,6 +101,7 @@ const VideoConsultation = () => {
                 enableNoisyMicDetection: false,
                 p2p: { enabled: true },
                 security: { enabled: false },
+                maxParticipants: 2,
             },
             interfaceConfigOverwrite: {
                 TOOLBAR_BUTTONS: [
