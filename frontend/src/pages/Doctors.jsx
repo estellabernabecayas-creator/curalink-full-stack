@@ -311,9 +311,9 @@ const Doctors = () => {
                   className='group relative border border-gray-200 dark:border-white/60 hover:border-transparent hover:bg-gradient-to-r hover:from-blue-500 hover:to-green-500 hover:p-[2px] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl'
                 >
                   <div className='w-full h-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-white/20 dark:border-white/10 rounded-xl overflow-hidden'>
-                    <div className='bg-[#f8fbff] dark:bg-slate-800 overflow-hidden'>
+                    <div className='bg-[#f8fbff] dark:bg-slate-800 overflow-hidden aspect-square'>
                       <img 
-                        className='w-full transition-transform duration-500 group-hover:scale-110' 
+                        className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110' 
                         src={item.image} 
                         alt={item.name} 
                       />

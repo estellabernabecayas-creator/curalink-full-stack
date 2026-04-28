@@ -20,7 +20,7 @@ const About = () => {
             {/* Badge - Matching your aesthetic */}
             <div className="mb-6">
               <span className="inline-block px-4 py-1.5 text-base font-semibold tracking-wider uppercase bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                <span className="text-gray-700">About</span>{' '}
+                <span className="text-gray-700 dark:text-white">About</span>{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500">CuraLink</span>
               </span>
             </div>
