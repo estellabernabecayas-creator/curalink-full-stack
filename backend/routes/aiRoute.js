@@ -40,6 +40,7 @@ CRITICAL RULES:
 - Do NOT prescribe medicine.
 - Only recommend which doctor specialization the user may consult.
 - Return ONLY a valid JSON object. No markdown, no extra text.
+- In the "reason" field, use bullet points to explain why this specialization is recommended.
 
 Assessment Answers:
 ${formattedAnswers}
@@ -70,6 +71,11 @@ CRITICAL RULES:
 - Do NOT diagnose the user.
 - Do NOT prescribe medicine.
 - Keep responses concise, friendly, and informative.
+- FORMAT: Always use bullet points (• or -) for:
+  * Lists of any kind
+  * Summaries
+  * Explaining multiple points
+  * When the user asks for bullet points or clear formatting
 - Always remind the user that this is not a substitute for professional medical advice.
 - Do NOT return JSON; respond in plain text.`;
 }
