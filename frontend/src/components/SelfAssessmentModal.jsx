@@ -83,7 +83,10 @@ export const assessmentQuestions = [
 ]
 
 // Terms Screen Component
-const TermsScreen = ({ onAccept, onDecline }) => (
+const TermsScreen = ({ onAccept, onDecline }) => {
+  const [checked, setChecked] = useState(false)
+
+  return (
   <div className='p-6 sm:p-8'>
     <div className='flex items-center justify-between mb-6'>
       <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>Terms & Conditions</h2>
@@ -93,7 +96,7 @@ const TermsScreen = ({ onAccept, onDecline }) => (
         </svg>
       </button>
     </div>
-    <div className='prose dark:prose-invert max-w-none mb-6 text-sm text-gray-600 dark:text-gray-400 space-y-4'>
+    <div className='prose dark:prose-invert max-w-none mb-6 text-sm text-gray-600 dark:text-gray-400 space-y-4 max-h-64 overflow-y-auto pr-2'>
       <p>
         <strong className='text-gray-900 dark:text-white'>1. Health Information Privacy</strong><br />
         The self-assessment tool collects health-related information to provide personalized recommendations.
@@ -120,8 +123,28 @@ const TermsScreen = ({ onAccept, onDecline }) => (
         Use this tool as a starting point for finding appropriate care, not as a definitive medical guide.
       </p>
     </div>
+    <div className='flex items-center gap-3 mb-4 p-3 bg-gray-50 dark:bg-slate-700/30 rounded-lg'>
+      <input
+        type='checkbox'
+        id='terms-checkbox'
+        checked={checked}
+        onChange={(e) => setChecked(e.target.checked)}
+        className='w-5 h-5 text-emerald-500 border-gray-300 dark:border-slate-500 rounded focus:ring-emerald-500 cursor-pointer'
+      />
+      <label htmlFor='terms-checkbox' className='text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none'>
+        I have read and agree to the Terms & Conditions above
+      </label>
+    </div>
     <div className='flex flex-col sm:flex-row gap-3'>
-      <button onClick={onAccept} className='flex-1 py-3 px-6 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold rounded-full transition-all duration-300'>
+      <button
+        onClick={onAccept}
+        disabled={!checked}
+        className={`flex-1 py-3 px-6 font-semibold rounded-full transition-all duration-300 ${
+          checked
+            ? 'bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white'
+            : 'bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+        }`}
+      >
         I Accept & Continue
       </button>
       <button onClick={onDecline} className='flex-1 py-3 px-6 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 font-semibold rounded-full hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors'>
@@ -129,7 +152,8 @@ const TermsScreen = ({ onAccept, onDecline }) => (
       </button>
     </div>
   </div>
-)
+  )
+}
 
 // Intro Screen Component
 const IntroScreen = ({ onStart, onBack, onClose }) => (
