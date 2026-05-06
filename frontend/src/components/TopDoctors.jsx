@@ -44,11 +44,11 @@ const TopDoctors = () => {
 
                 {/* Doctors Grid */}
                 {loading ? (
-                    <div className="w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0">
-                        {[...Array(8)].map((_, i) => <DoctorSkeleton key={i} />)}
+                    <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-5 gap-y-6 px-3 sm:px-0">
+                        {[...Array(10)].map((_, i) => <DoctorSkeleton key={i} />)}
                     </div>
                 ) : (
-                    <div className='w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0'>
+                    <div className='w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-5 gap-y-6 px-3 sm:px-0'>
                     {doctors.slice(0, 10).map((item, index) => (
                     <div 
                       onClick={() => { navigate(`/appointment/${item._id}`); scrollTo(0, 0) }} 
