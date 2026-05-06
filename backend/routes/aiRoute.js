@@ -1,8 +1,18 @@
 import express from 'express';
+import fs from 'fs';
 import { GoogleGenAI } from "@google/genai";
 
-// Set credentials for Vertex AI
-process.env.GOOGLE_APPLICATION_CREDENTIALS = "./service-account.json";
+// Set credentials for Vertex AI from environment variable
+if (process.env.GOOGLE_CREDENTIALS_BASE64) {
+  // Decode base64 credentials and write to temp file for Render
+  const credentialsJson = JSON.parse(Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString());
+  const tempPath = '/tmp/service-account.json';
+  fs.writeFileSync(tempPath, JSON.stringify(credentialsJson));
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = tempPath;
+} else {
+  // Fallback to local file for development
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = "./service-account.json";
+}
 
 const ai = new GoogleGenAI({
   vertexai: true,
