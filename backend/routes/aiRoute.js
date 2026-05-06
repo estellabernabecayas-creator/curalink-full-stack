@@ -149,4 +149,42 @@ router.post("/ai-chat", async (req, res) => {
   }
 });
 
+// POST /api/general-chat
+router.post("/general-chat", async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ success: false, message: "Missing message." });
+    }
+
+    const prompt = `You are a helpful assistant for CuraLink, a healthcare booking platform. You help users with:
+
+• Booking appointments and finding doctors
+• Payment and billing questions
+• Using the self-assessment tool
+• Website navigation and features
+• General healthcare guidance (non-diagnostic)
+
+IMPORTANT RULES:
+- Provide helpful, friendly guidance about the platform
+- Do NOT provide medical diagnoses or prescribe medications
+- For medical concerns, always recommend consulting a healthcare professional
+- Use bullet points (• or -) for lists and explanations
+- Keep responses concise and conversational
+- If you don't know something, be honest and suggest contacting support
+
+User message: "${message}"
+
+Provide a helpful response:`;
+
+    const reply = await callGemini(prompt);
+
+    return res.json({ success: true, reply });
+  } catch (error) {
+    console.error("Error in /api/general-chat:", error);
+    return res.status(500).json({ success: false, message: error.message || "AI chat service error." });
+  }
+});
+
 export default router;

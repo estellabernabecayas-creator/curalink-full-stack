@@ -17,6 +17,7 @@ import VideoConsultation from './pages/VideoConsultation'
 import ResetPassword from './pages/ResetPassword'
 import ScrollToTop from './components/ScrollToTop'
 import BackToTop from './components/BackToTop'
+import ChatBot from './components/ChatBot'
 
 const App = () => {
   useEffect(() => {
@@ -38,6 +39,7 @@ const App = () => {
     <div className='bg-gradient-to-br from-blue-50 via-green-50 to-white min-h-screen dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900'>
       <ScrollToTop />
       <BackToTop />
+      <ChatBot />
       <div className='mx-2 sm:mx-[3%]'>
         <ToastContainer />
         <Navbar />
