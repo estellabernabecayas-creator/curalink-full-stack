@@ -1,157 +1,84 @@
 import React, { useState } from 'react'
 import { specialityData } from '../assets/assets'
+import { toast } from 'react-toastify'
 
-// Export questions so they can be shared
+const backendUrl = import.meta.env.VITE_BACKEND_URL
+
 export const assessmentQuestions = [
   {
     id: 1,
     question: "How often have you felt physically unwell or experienced general body discomfort in the past 2 weeks?",
-    options: [
-      { text: "Not at all", score: { 'General physician': 0 } },
-      { text: "Several days", score: { 'General physician': 1 } },
-      { text: "More than half the days", score: { 'General physician': 2 } },
-      { text: "Nearly every day", score: { 'General physician': 3 } }
-    ]
+    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
   },
   {
     id: 2,
     question: "Are you experiencing any women's health related symptoms (irregular periods, pelvic pain, etc.)?",
-    options: [
-      { text: "No symptoms", score: { 'Gynecologist': 0 } },
-      { text: "Mild symptoms occasionally", score: { 'Gynecologist': 1 } },
-      { text: "Moderate symptoms frequently", score: { 'Gynecologist': 2 } },
-      { text: "Severe symptoms regularly", score: { 'Gynecologist': 3 } }
-    ]
+    options: ["No symptoms", "Mild symptoms occasionally", "Moderate symptoms frequently", "Severe symptoms regularly"]
   },
   {
     id: 3,
     question: "How would you rate your skin health? Any persistent rashes, acne, or skin conditions?",
-    options: [
-      { text: "Skin is healthy", score: { 'Dermatologist': 0 } },
-      { text: "Minor occasional issues", score: { 'Dermatologist': 1 } },
-      { text: "Moderate persistent problems", score: { 'Dermatologist': 2 } },
-      { text: "Severe ongoing skin conditions", score: { 'Dermatologist': 3 } }
-    ]
+    options: ["Skin is healthy", "Minor occasional issues", "Moderate persistent problems", "Severe ongoing skin conditions"]
   },
   {
     id: 4,
     question: "Do you have any concerns about your child's health, growth, or development?",
-    options: [
-      { text: "No concerns", score: { 'Pediatricians': 0 } },
-      { text: "Minor concerns", score: { 'Pediatricians': 1 } },
-      { text: "Moderate concerns", score: { 'Pediatricians': 2 } },
-      { text: "Significant concerns", score: { 'Pediatricians': 3 } }
-    ]
+    options: ["No concerns", "Minor concerns", "Moderate concerns", "Significant concerns"]
   },
   {
     id: 5,
     question: "Have you experienced frequent headaches, migraines, or neurological symptoms?",
-    options: [
-      { text: "Never/Rarely", score: { 'Neurologist': 0 } },
-      { text: "Occasionally", score: { 'Neurologist': 1 } },
-      { text: "Frequently", score: { 'Neurologist': 2 } },
-      { text: "Almost daily", score: { 'Neurologist': 3 } }
-    ]
+    options: ["Never/Rarely", "Occasionally", "Frequently", "Almost daily"]
   },
   {
     id: 6,
     question: "How often do you experience digestive issues (bloating, stomach pain, irregular bowel movements)?",
-    options: [
-      { text: "Rarely/Never", score: { 'Gastroenterologist': 0 } },
-      { text: "Sometimes", score: { 'Gastroenterologist': 1 } },
-      { text: "Often", score: { 'Gastroenterologist': 2 } },
-      { text: "Very frequently", score: { 'Gastroenterologist': 3 } }
-    ]
+    options: ["Rarely/Never", "Sometimes", "Often", "Very frequently"]
   },
   {
     id: 7,
     question: "Do you have persistent fever, unexplained weight changes, or chronic fatigue?",
-    options: [
-      { text: "None of these", score: { 'General physician': 0 } },
-      { text: "One mild symptom", score: { 'General physician': 1 } },
-      { text: "Multiple moderate symptoms", score: { 'General physician': 2 } },
-      { text: "Severe/multiple symptoms", score: { 'General physician': 3 } }
-    ]
+    options: ["None of these", "One mild symptom", "Multiple moderate symptoms", "Severe/multiple symptoms"]
   },
   {
     id: 8,
     question: "Are you experiencing reproductive health concerns or planning for pregnancy?",
-    options: [
-      { text: "No concerns", score: { 'Gynecologist': 0 } },
-      { text: "General questions", score: { 'Gynecologist': 1 } },
-      { text: "Active concerns", score: { 'Gynecologist': 2 } },
-      { text: "Urgent reproductive health issues", score: { 'Gynecologist': 3 } }
-    ]
+    options: ["No concerns", "General questions", "Active concerns", "Urgent reproductive health issues"]
   },
   {
     id: 9,
     question: "Have you noticed any unusual changes in your skin, hair, or nails?",
-    options: [
-      { text: "No changes", score: { 'Dermatologist': 0 } },
-      { text: "Minor cosmetic concerns", score: { 'Dermatologist': 1 } },
-      { text: "Noticeable changes", score: { 'Dermatologist': 2 } },
-      { text: "Significant medical concerns", score: { 'Dermatologist': 3 } }
-    ]
+    options: ["No changes", "Minor cosmetic concerns", "Noticeable changes", "Significant medical concerns"]
   },
   {
     id: 10,
     question: "Does your child need routine check-ups, vaccinations, or developmental screening?",
-    options: [
-      { text: "Up to date on all", score: { 'Pediatricians': 0 } },
-      { text: "Minor catch-up needed", score: { 'Pediatricians': 1 } },
-      { text: "Several missed appointments", score: { 'Pediatricians': 2 } },
-      { text: "Urgent care needed", score: { 'Pediatricians': 3 } }
-    ]
+    options: ["Up to date on all", "Minor catch-up needed", "Several missed appointments", "Urgent care needed"]
   },
   {
     id: 11,
     question: "Do you experience numbness, tingling, memory issues, or difficulty concentrating?",
-    options: [
-      { text: "Never", score: { 'Neurologist': 0 } },
-      { text: "Rarely", score: { 'Neurologist': 1 } },
-      { text: "Sometimes", score: { 'Neurologist': 2 } },
-      { text: "Often affecting daily life", score: { 'Neurologist': 3 } }
-    ]
+    options: ["Never", "Rarely", "Sometimes", "Often affecting daily life"]
   },
   {
     id: 12,
     question: "Have you noticed blood in stool, persistent heartburn, or difficulty swallowing?",
-    options: [
-      { text: "None of these", score: { 'Gastroenterologist': 0 } },
-      { text: "Mild occasional issues", score: { 'Gastroenterologist': 1 } },
-      { text: "Regular discomfort", score: { 'Gastroenterologist': 2 } },
-      { text: "Severe/Alarming symptoms", score: { 'Gastroenterologist': 3 } }
-    ]
+    options: ["None of these", "Mild occasional issues", "Regular discomfort", "Severe/Alarming symptoms"]
   },
   {
     id: 13,
     question: "Do you need preventive health screening, annual check-up, or general health advice?",
-    options: [
-      { text: "Recently completed", score: { 'General physician': 0 } },
-      { text: "Due soon", score: { 'General physician': 1 } },
-      { text: "Overdue", score: { 'General physician': 2 } },
-      { text: "Multiple concerns to discuss", score: { 'General physician': 3 } }
-    ]
+    options: ["Recently completed", "Due soon", "Overdue", "Multiple concerns to discuss"]
   },
   {
     id: 14,
     question: "Are you experiencing any hormonal imbalances, mood swings related to cycle, or sexual health concerns?",
-    options: [
-      { text: "No issues", score: { 'Gynecologist': 0 } },
-      { text: "Minor manageable", score: { 'Gynecologist': 1 } },
-      { text: "Moderate affecting life", score: { 'Gynecologist': 2 } },
-      { text: "Severe distress", score: { 'Gynecologist': 3 } }
-    ]
+    options: ["No issues", "Minor manageable", "Moderate affecting life", "Severe distress"]
   },
   {
     id: 15,
     question: "Do you have concerns about moles, skin cancer screening, or chronic skin conditions?",
-    options: [
-      { text: "No concerns", score: { 'Dermatologist': 0 } },
-      { text: "Routine screening due", score: { 'Dermatologist': 1 } },
-      { text: "Suspicious changes noticed", score: { 'Dermatologist': 2 } },
-      { text: "Urgent dermatological issues", score: { 'Dermatologist': 3 } }
-    ]
+    options: ["No concerns", "Routine screening due", "Suspicious changes noticed", "Urgent dermatological issues"]
   }
 ]
 
@@ -166,35 +93,33 @@ const TermsScreen = ({ onAccept, onDecline }) => (
         </svg>
       </button>
     </div>
-    
     <div className='prose dark:prose-invert max-w-none mb-6 text-sm text-gray-600 dark:text-gray-400 space-y-4'>
       <p>
         <strong className='text-gray-900 dark:text-white'>1. Health Information Privacy</strong><br />
-        The self-assessment tool collects health-related information to provide personalized recommendations. 
-        All data is processed locally and is not stored on our servers. Your responses remain confidential.
+        The self-assessment tool collects health-related information to provide personalized recommendations.
+        All data is processed securely and is not stored permanently on our servers. Your responses remain confidential.
       </p>
       <p>
         <strong className='text-gray-900 dark:text-white'>2. Non-Medical Advice Disclaimer</strong><br />
-        This assessment is for informational purposes only and does not constitute medical advice, diagnosis, or treatment. 
+        This assessment is for informational purposes only and does not constitute medical advice, diagnosis, or treatment.
         The recommendations provided are suggestions based on your responses and should not replace professional medical consultation.
       </p>
       <p>
         <strong className='text-gray-900 dark:text-white'>3. Consult Healthcare Professionals</strong><br />
-        Always consult with qualified healthcare providers for proper diagnosis, treatment, and medical advice. 
+        Always consult with qualified healthcare providers for proper diagnosis, treatment, and medical advice.
         In case of emergency, please contact emergency services immediately.
       </p>
       <p>
         <strong className='text-gray-900 dark:text-white'>4. Data Usage</strong><br />
-        By using this tool, you acknowledge that your responses are used solely to generate specialty recommendations. 
+        By using this tool, you acknowledge that your responses are used solely to generate specialty recommendations.
         No personal health information is retained after the session ends.
       </p>
       <p>
         <strong className='text-gray-900 dark:text-white'>5. Accuracy</strong><br />
-        While we strive to provide helpful guidance, the assessment results may not accurately reflect your medical needs. 
+        While we strive to provide helpful guidance, the assessment results may not accurately reflect your medical needs.
         Use this tool as a starting point for finding appropriate care, not as a definitive medical guide.
       </p>
     </div>
-
     <div className='flex flex-col sm:flex-row gap-3'>
       <button onClick={onAccept} className='flex-1 py-3 px-6 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold rounded-full transition-all duration-300'>
         I Accept & Continue
@@ -221,7 +146,6 @@ const IntroScreen = ({ onStart, onBack, onClose }) => (
         </svg>
       </button>
     </div>
-    
     <div className='text-center mb-6'>
       <div className='w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-emerald-100 to-blue-100 dark:from-emerald-900/40 dark:to-blue-900/40 rounded-full flex items-center justify-center'>
         <svg xmlns='http://www.w3.org/2000/svg' className='w-8 h-8 text-emerald-600' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={1.5}>
@@ -233,7 +157,6 @@ const IntroScreen = ({ onStart, onBack, onClose }) => (
         A brief confidential assessment to help evaluate your current well-being and appropriately guide you to find the best specialist for your needs.
       </p>
     </div>
-
     <div className='flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-6'>
       <span className='flex items-center gap-1'>
         <svg className='w-3 h-3 text-emerald-500' fill='currentColor' viewBox='0 0 20 20'>
@@ -251,14 +174,12 @@ const IntroScreen = ({ onStart, onBack, onClose }) => (
         <svg className='w-3 h-3 text-emerald-500' fill='currentColor' viewBox='0 0 20 20'>
           <path d='M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z' />
         </svg>
-        Personalized
+        AI-Powered
       </span>
     </div>
-
     <button onClick={onStart} className='w-full py-3 px-6 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white font-semibold rounded-full transition-all duration-300'>
       Begin Assessment
     </button>
-    
     <p className='mt-4 text-xs text-gray-500 dark:text-gray-400 text-center'>
       Results are for informational purposes only.
     </p>
@@ -266,14 +187,14 @@ const IntroScreen = ({ onStart, onBack, onClose }) => (
 )
 
 // Questions Screen Component
-const QuestionsScreen = ({ currentQuestion, scores, onAnswer, onBack, onClose }) => {
+const QuestionsScreen = ({ currentQuestion, onAnswer, onBack, onClose }) => {
   const progress = ((currentQuestion + 1) / assessmentQuestions.length) * 100
   const question = assessmentQuestions[currentQuestion]
 
   return (
     <div className='p-6 sm:p-8'>
       <div className='flex items-center justify-between mb-4'>
-        <button 
+        <button
           onClick={() => onBack(currentQuestion > 0 ? currentQuestion - 1 : null)}
           className='text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors'
         >
@@ -288,18 +209,12 @@ const QuestionsScreen = ({ currentQuestion, scores, onAnswer, onBack, onClose })
           </svg>
         </button>
       </div>
-      
-      {/* Progress Bar */}
       <div className='bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 mb-6 overflow-hidden'>
         <div className='bg-gradient-to-r from-emerald-500 to-blue-500 h-full rounded-full transition-all duration-500 ease-out' style={{ width: `${progress}%` }} />
       </div>
-
-      {/* Question */}
       <h3 className='text-base sm:text-lg font-semibold text-gray-800 dark:text-white mb-5 leading-relaxed'>
         {question.question}
       </h3>
-
-      {/* Options */}
       <div className='space-y-2'>
         {question.options.map((option, index) => (
           <button
@@ -312,7 +227,7 @@ const QuestionsScreen = ({ currentQuestion, scores, onAnswer, onBack, onClose })
                 {String.fromCharCode(65 + index)}
               </div>
               <span className='text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white'>
-                {option.text}
+                {option}
               </span>
             </div>
           </button>
@@ -322,34 +237,45 @@ const QuestionsScreen = ({ currentQuestion, scores, onAnswer, onBack, onClose })
   )
 }
 
-// Results Screen Component
-const ResultsScreen = ({ scores, onClose, onFindDoctors }) => {
-  const getRecommendedSpecialty = () => {
-    // Convert scores object to array and sort by score descending
-    const sortedScores = Object.entries(scores).sort(([,a], [,b]) => b - a)
-    const maxScore = sortedScores[0][1]
-    const topSpecialty = sortedScores[0][0]
-    
-    // Check for low scores: if all scores are less than 4, return General Physician
-    const allLowScores = sortedScores.every(([, score]) => score < 4)
-    if (allLowScores) {
-      return { specialty: 'General physician', score: maxScore }
-    }
-    
-    // Always return the highest scoring specialty
-    return { specialty: topSpecialty, score: maxScore }
-  }
+// Loading Screen Component
+const LoadingScreen = () => (
+  <div className='p-8 text-center'>
+    <div className='w-12 h-12 mx-auto mb-4 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin' />
+    <h3 className='text-lg font-semibold text-gray-800 dark:text-white mb-1'>Analyzing your responses...</h3>
+    <p className='text-sm text-gray-500 dark:text-gray-400'>Our AI is finding the best specialist for you.</p>
+  </div>
+)
 
+// Error Screen Component
+const ErrorScreen = ({ message, onRetry }) => (
+  <div className='p-8 text-center'>
+    <div className='w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center'>
+      <svg xmlns='http://www.w3.org/2000/svg' className='w-6 h-6 text-red-500' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
+        <path strokeLinecap='round' strokeLinejoin='round' d='M12 9v2m0 4h.01M12 3a9 9 0 100 18 9 9 0 000-18z' />
+      </svg>
+    </div>
+    <h3 className='text-lg font-semibold text-gray-800 dark:text-white mb-2'>Something went wrong</h3>
+    <p className='text-sm text-gray-500 dark:text-gray-400 mb-4'>{message}</p>
+    <button
+      onClick={onRetry}
+      className='px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-blue-600 text-white font-semibold rounded-full shadow-md hover:shadow-lg transition-all duration-300 text-sm'
+    >
+      Try Again
+    </button>
+  </div>
+)
+
+// Results Screen Component
+const ResultsScreen = ({ result, onClose, onFindDoctors, onChat, showChat, chatMessages, chatInput, setChatInput, onSendChat, chatLoading }) => {
   const getSpecialtyIcon = (specialty) => {
     const found = specialityData.find(s => s.speciality === specialty)
     return found ? found.image : null
   }
 
-  const recommendation = getRecommendedSpecialty()
-  const specialtyImage = getSpecialtyIcon(recommendation.specialty)
+  const specialtyImage = getSpecialtyIcon(result.recommendedSpecialization)
 
   return (
-    <div className='p-6 sm:p-8'>
+    <div className='p-6 sm:p-8 max-h-[80vh] overflow-y-auto'>
       <div className='flex items-center justify-between mb-4'>
         <h2 className='text-xl font-bold text-gray-900 dark:text-white'>Your Results</h2>
         <button onClick={onClose} className='text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors'>
@@ -358,37 +284,97 @@ const ResultsScreen = ({ scores, onClose, onFindDoctors }) => {
           </svg>
         </button>
       </div>
-      
+
       <div className='text-center mb-6'>
         <div className='w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-xl flex items-center justify-center shadow-md'>
-          {specialtyImage && <img src={specialtyImage} alt={recommendation.specialty} className='w-10 h-10 object-contain' />}
+          {specialtyImage && <img src={specialtyImage} alt={result.recommendedSpecialization} className='w-10 h-10 object-contain' />}
         </div>
-        <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-1'>{recommendation.specialty}</h3>
-        <p className='text-sm text-gray-600 dark:text-gray-400'>Best match for your health concerns</p>
+        <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-1'>{result.recommendedSpecialization}</h3>
+        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+          result.confidence === 'High'
+            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+            : result.confidence === 'Moderate'
+            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300'
+            : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+        }`}>
+          {result.confidence} Confidence
+        </span>
       </div>
 
       <div className='mb-5 p-4 bg-gray-50 dark:bg-slate-700/50 rounded-xl'>
-        <h4 className='text-sm font-semibold text-gray-800 dark:text-white mb-3 text-center'>Match Score</h4>
-        <div className='space-y-2'>
-          {Object.entries(scores).sort(([,a], [,b]) => b - a).slice(0, 3).map(([specialty, score]) => (
-            <div key={specialty} className='flex items-center gap-2'>
-              <span className='w-28 text-xs text-gray-600 dark:text-gray-400 truncate'>{specialty}</span>
-              <div className='flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2 overflow-hidden'>
-                <div className={`h-full rounded-full transition-all duration-500 ${specialty === recommendation.specialty ? 'bg-gradient-to-r from-emerald-500 to-blue-500' : 'bg-gray-400 dark:bg-gray-500'}`} style={{ width: `${Math.min((score / 9) * 100, 100)}%` }} />
-              </div>
-            </div>
-          ))}
-        </div>
+        <h4 className='text-sm font-semibold text-gray-800 dark:text-white mb-2'>Why this recommendation?</h4>
+        <p className='text-sm text-gray-600 dark:text-gray-400 leading-relaxed'>{result.reason}</p>
+      </div>
+
+      <div className='mb-5 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800'>
+        <p className='text-xs text-blue-700 dark:text-blue-300 text-center font-medium'>
+          {result.disclaimer}
+        </p>
       </div>
 
       <div className='flex flex-col sm:flex-row gap-3 justify-center'>
-        <button onClick={() => onFindDoctors(recommendation.specialty)} className='px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white font-semibold rounded-full shadow-md hover:shadow-lg transition-all duration-300 text-sm text-center'>
-          Find {recommendation.specialty} Doctors
+        <button onClick={() => onFindDoctors(result.recommendedSpecialization)} className='px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white font-semibold rounded-full shadow-md hover:shadow-lg transition-all duration-300 text-sm text-center'>
+          Find {result.recommendedSpecialization} Doctors
         </button>
         <button onClick={onClose} className='px-6 py-2.5 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 font-semibold rounded-full hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-sm'>
           Close
         </button>
+        <button onClick={onChat} className='px-6 py-2.5 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 font-semibold rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors text-sm'>
+          Ask Follow-up
+        </button>
       </div>
+
+      {/* Chat Section */}
+      {showChat && (
+        <div className='mt-6 border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden'>
+          <div className='p-3 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800'>
+            <h4 className='text-sm font-semibold text-gray-800 dark:text-white'>Ask about your recommendation</h4>
+            <p className='text-xs text-gray-500 dark:text-gray-400'>The assistant can explain your result but will not diagnose or prescribe.</p>
+          </div>
+          <div className='p-3 h-56 overflow-y-auto space-y-3 bg-gray-50 dark:bg-slate-900/30'>
+            {chatMessages.length === 0 && (
+              <p className='text-xs text-gray-400 dark:text-gray-500 text-center'>Type a question to start the conversation.</p>
+            )}
+            {chatMessages.map((msg, idx) => (
+              <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[85%] px-3 py-2 rounded-xl text-sm ${
+                  msg.sender === 'user'
+                    ? 'bg-emerald-500 text-white rounded-br-none'
+                    : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-slate-600 rounded-bl-none'
+                }`}>
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            {chatLoading && (
+              <div className='flex justify-start'>
+                <div className='bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl rounded-bl-none px-3 py-2 text-sm text-gray-500 dark:text-gray-400'>
+                  <span className='inline-block w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce mr-0.5' />
+                  <span className='inline-block w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce mr-0.5' style={{ animationDelay: '0.15s' }} />
+                  <span className='inline-block w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce' style={{ animationDelay: '0.3s' }} />
+                </div>
+              </div>
+            )}
+          </div>
+          <div className='p-3 border-t border-gray-100 dark:border-slate-700 flex gap-2 bg-white dark:bg-slate-800'>
+            <input
+              type='text'
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && onSendChat()}
+              placeholder='Ask a follow-up question...'
+              className='flex-1 px-4 py-2 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-full outline-none focus:border-emerald-400 dark:focus:border-emerald-500 text-gray-800 dark:text-white'
+            />
+            <button
+              onClick={onSendChat}
+              disabled={chatLoading}
+              className='px-4 py-2 bg-gradient-to-r from-emerald-500 to-blue-600 text-white text-sm font-medium rounded-full hover:from-emerald-600 hover:to-blue-700 transition-all disabled:opacity-50'
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
 
       <p className='mt-4 text-xs text-gray-500 dark:text-gray-400 text-center'>
         For informational purposes only. Consult a healthcare provider for medical advice.
@@ -402,11 +388,14 @@ const SelfAssessmentModal = ({ isOpen, onClose }) => {
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [startedAssessment, setStartedAssessment] = useState(false)
   const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [scores, setScores] = useState({
-    'General physician': 0, 'Gynecologist': 0, 'Dermatologist': 0,
-    'Pediatricians': 0, 'Neurologist': 0, 'Gastroenterologist': 0
-  })
-  const [showResults, setShowResults] = useState(false)
+  const [answers, setAnswers] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState(null)
+  const [showChat, setShowChat] = useState(false)
+  const [chatMessages, setChatMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
 
   if (!isOpen) return null
 
@@ -414,26 +403,50 @@ const SelfAssessmentModal = ({ isOpen, onClose }) => {
   const handleStartAssessment = () => setStartedAssessment(true)
   const handleBackToTerms = () => setAcceptedTerms(false)
   const handleBackToIntro = () => setStartedAssessment(false)
-  
+
   const handleBack = (prevQuestion) => {
     if (prevQuestion !== null && prevQuestion >= 0) {
       setCurrentQuestion(prevQuestion)
+      setAnswers(answers.slice(0, prevQuestion + 1))
     } else {
       setStartedAssessment(false)
+      setAnswers([])
+      setCurrentQuestion(0)
     }
   }
 
-  const handleAnswer = (option) => {
-    const newScores = { ...scores }
-    Object.entries(option.score).forEach(([specialty, points]) => {
-      newScores[specialty] += points
-    })
-    setScores(newScores)
+  const handleAnswer = (answerText) => {
+    const newAnswers = [...answers, { question: assessmentQuestions[currentQuestion].question, answer: answerText }]
+    setAnswers(newAnswers)
 
     if (currentQuestion < assessmentQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
     } else {
-      setShowResults(true)
+      submitAssessment(newAnswers)
+    }
+  }
+
+  const submitAssessment = async (finalAnswers) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(`${backendUrl}/api/self-assessment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: finalAnswers })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setResult(data.recommendation)
+      } else {
+        setError(data.message || 'Something went wrong.')
+        toast.error(data.message || 'Assessment failed.')
+      }
+    } catch (err) {
+      setError('Network error. Please try again.')
+      toast.error('Network error. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -441,11 +454,12 @@ const SelfAssessmentModal = ({ isOpen, onClose }) => {
     setAcceptedTerms(false)
     setStartedAssessment(false)
     setCurrentQuestion(0)
-    setShowResults(false)
-    setScores({
-      'General physician': 0, 'Gynecologist': 0, 'Dermatologist': 0,
-      'Pediatricians': 0, 'Neurologist': 0, 'Gastroenterologist': 0
-    })
+    setAnswers([])
+    setResult(null)
+    setError(null)
+    setShowChat(false)
+    setChatMessages([])
+    setChatInput('')
     onClose()
   }
 
@@ -454,15 +468,57 @@ const SelfAssessmentModal = ({ isOpen, onClose }) => {
     handleClose()
   }
 
+  const sendChatMessage = async () => {
+    if (!chatInput.trim()) return
+    const userMsg = chatInput.trim()
+    setChatInput('')
+    setChatMessages(prev => [...prev, { sender: 'user', text: userMsg }])
+    setChatLoading(true)
+    try {
+      const res = await fetch(`${backendUrl}/api/ai-chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers, recommendation: result, message: userMsg })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setChatMessages(prev => [...prev, { sender: 'ai', text: data.reply }])
+      } else {
+        toast.error(data.message || 'Chat error.')
+      }
+    } catch (err) {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
   let content
   if (!acceptedTerms) {
     content = <TermsScreen onAccept={handleAcceptTerms} onDecline={handleClose} />
   } else if (!startedAssessment) {
     content = <IntroScreen onStart={handleStartAssessment} onBack={handleBackToTerms} onClose={handleClose} />
-  } else if (showResults) {
-    content = <ResultsScreen scores={scores} onClose={handleClose} onFindDoctors={handleFindDoctors} />
+  } else if (loading) {
+    content = <LoadingScreen />
+  } else if (error) {
+    content = <ErrorScreen message={error} onRetry={() => { setError(null); setCurrentQuestion(0); setAnswers([]); setStartedAssessment(true); }} />
+  } else if (result) {
+    content = (
+      <ResultsScreen
+        result={result}
+        onClose={handleClose}
+        onFindDoctors={handleFindDoctors}
+        onChat={() => setShowChat(true)}
+        showChat={showChat}
+        chatMessages={chatMessages}
+        chatInput={chatInput}
+        setChatInput={setChatInput}
+        onSendChat={sendChatMessage}
+        chatLoading={chatLoading}
+      />
+    )
   } else {
-    content = <QuestionsScreen currentQuestion={currentQuestion} scores={scores} onAnswer={handleAnswer} onBack={handleBack} onClose={handleClose} />
+    content = <QuestionsScreen currentQuestion={currentQuestion} onAnswer={handleAnswer} onBack={handleBack} onClose={handleClose} />
   }
 
   return (
