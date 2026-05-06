@@ -128,29 +128,11 @@ const SpecialityMenu = () => {
 
 
 
-                {/* Browse All Doctors Button */}
+                {/* Explore Text */}
 
                 <div className='text-center mt-12'>
 
-                    <button 
-                        onClick={() => {
-                            navigate('/doctors');
-                            // Force scroll to top immediately
-                            setTimeout(() => {
-                                window.scrollTo(0, 0);
-                                document.documentElement.scrollTop = 0;
-                                document.body.scrollTop = 0;
-                            }, 10);
-                        }}
-                        className='inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5'
-                    >
-                        <span>Browse All Doctors</span>
-                        <svg xmlns='http://www.w3.org/2000/svg' className='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
-                            <path strokeLinecap='round' strokeLinejoin='round' d='M17 8l4 4m0 0l-4 4m4-4H3' />
-                        </svg>
-                    </button>
-
-                    <p className='mt-3 text-sm text-gray-500 dark:text-gray-400'>
+                    <p className='text-sm text-gray-500 dark:text-gray-400'>
 
                         Explore doctors across all {specialityData.length} specialities
 
@@ -163,6 +145,7 @@ const SpecialityMenu = () => {
         </section>
 
     )
+
 
 }
 
