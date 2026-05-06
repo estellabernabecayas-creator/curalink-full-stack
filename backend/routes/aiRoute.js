@@ -226,29 +226,25 @@ router.post("/general-chat", async (req, res) => {
     // Create dynamic summaries
     const doctorSummary = systemData.doctors.length > 0 
       ? systemData.doctors.slice(0, 8).map(doc => 
-          `• **Dr. ${doc.name}** - ${doc.speciality} (${doc.experience}, $${doc.fees})`
-        ).join('\n')
-      : "• Multiple doctors available across all specialties";
+          `Dr. ${doc.name} is a ${doc.speciality} with ${doc.experience} of experience. The consultation fee is $${doc.fees}.`
+        ).join(' ')
+      : "We have multiple doctors available across all specialties.";
 
     const specialtiesList = systemData.specialties.length > 0
-      ? systemData.specialties.map(spec => `• ${spec}`).join('\n')
-      : "• General physician\n• Gynecologist\n• Dermatologist\n• Pediatrician\n• Neurologist\n• Gastroenterologist";
+      ? systemData.specialties.join(', ')
+      : "General physician, Gynecologist, Dermatologist, Pediatrician, Neurologist, Gastroenterologist";
 
     const navigationList = systemData.navigation.map(nav => 
-      `• **${nav.name}** (${nav.path}): ${nav.description}`
-    ).join('\n');
+      `${nav.name} page for ${nav.description.toLowerCase()}`
+    ).join(', ');
 
     const userPagesList = systemData.userPages.map(page => 
-      `• **${page.name}** (${page.path}): ${page.description}`
-    ).join('\n');
+      `${page.name} where you can ${page.description.toLowerCase()}`
+    ).join(', ');
 
-    const bookingSteps = systemData.bookingFlow.map((step, index) => 
-      `${index + 1}. ${step}`
-    ).join('\n');
+    const bookingSteps = systemData.bookingFlow.join(' Then ');
 
-    const paymentOptions = systemData.paymentMethods.map(method => 
-      `• **${method}**`
-    ).join('\n');
+    const paymentOptions = systemData.paymentMethods.join(' or ');
 
     const prompt = `You are a helpful assistant for CuraLink, a comprehensive healthcare booking platform. You have complete knowledge of how the website works and can guide users through all features.
 
@@ -300,14 +296,14 @@ ${doctorSummary}
 *Note: This list shows currently available doctors. Visit /doctors to see all options and detailed profiles.*
 
 IMPORTANT RULES:
-- Provide specific, actionable guidance about CuraLink features
-- Give exact page routes and navigation instructions
-- Explain booking process step-by-step when asked
+- Provide helpful, friendly guidance about CuraLink features
+- Write in natural, conversational language (no code syntax)
+- Use simple sentences, not bullet points or lists
+- Explain things step-by-step when asked
 - Do NOT provide medical diagnoses or prescribe medications
 - For medical concerns, always recommend consulting appropriate specialist
-- Use bullet points (• or -) for lists and explanations
-- Keep responses helpful and conversational
-- Reference specific features and pages by name
+- Keep responses short and easy to read
+- Focus on being helpful, not technical
 
 User message: "${message}"
 
