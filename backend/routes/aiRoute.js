@@ -158,42 +158,116 @@ router.post("/general-chat", async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing message." });
     }
 
+    // Fetch all dynamic data from database
+    let systemData = {
+      doctors: [],
+      specialties: [],
+      appointments: [],
+      paymentMethods: ['Online Payment (Stripe, PayMongo)', 'Cash Payment at Clinic'],
+      bookingFlow: [
+        'Browse doctors from homepage or "All Doctors" page',
+        'Click on desired doctor to view profile (fees, experience, about, address)',
+        'Click "Book an Appointment" button',
+        'Select available date from calendar',
+        'Select available time slot',
+        'Choose payment method (Online or Cash)',
+        'Complete booking and receive confirmation'
+      ],
+      navigation: [
+        { name: 'HOME', path: '/', description: 'Landing page with hero section, features, and self-assessment access' },
+        { name: 'ALL DOCTORS', path: '/doctors', description: 'Browse all doctors or filter by specialty' },
+        { name: 'ABOUT US', path: '/about', description: 'Company information and mission' },
+        { name: 'CONTACT', path: '/contact', description: 'Contact form and support information' },
+        { name: 'LOGIN', path: '/login', description: 'User authentication with Login/Create account tabs' }
+      ],
+      userPages: [
+        { name: 'MY PROFILE', path: '/my-profile', description: 'Manage personal information, medical history' },
+        { name: 'MY APPOINTMENTS', path: '/my-appointments', description: 'View, manage, and pay for appointments' },
+        { name: 'APPOINTMENT BOOKING', path: '/appointment/{docId}', description: 'Book specific doctor with date/time selection' }
+      ]
+    };
+
+    try {
+      // Fetch doctors data
+      const doctorModel = (await import('../models/doctorModel.js')).default;
+      const doctorsData = await doctorModel.find({}).select('-password');
+      systemData.doctors = doctorsData.map(doc => ({
+        name: doc.name,
+        speciality: doc.speciality,
+        degree: doc.degree,
+        experience: doc.experience,
+        about: doc.about,
+        fees: doc.fees,
+        address: doc.address,
+        _id: doc._id
+      }));
+
+      // Extract unique specialties
+      const uniqueSpecialties = [...new Set(systemData.doctors.map(doc => doc.speciality))];
+      systemData.specialties = uniqueSpecialties;
+
+      // Fetch recent appointments for context
+      const appointmentModel = (await import('../models/appointmentModel.js')).default;
+      const recentAppointments = await appointmentModel.find({}).limit(5).sort({ createdAt: -1 });
+      systemData.appointments = recentAppointments.map(apt => ({
+        docId: apt.docId,
+        userData: apt.userData,
+        slotDate: apt.slotDate,
+        slotTime: apt.slotTime,
+        amount: apt.amount,
+        payment: apt.payment,
+        status: apt.payment ? 'Paid' : 'Pending'
+      }));
+
+    } catch (dbError) {
+      console.log("Could not fetch system data, using fallback:", dbError.message);
+    }
+
+    // Create dynamic summaries
+    const doctorSummary = systemData.doctors.length > 0 
+      ? systemData.doctors.slice(0, 8).map(doc => 
+          `• **Dr. ${doc.name}** - ${doc.speciality} (${doc.experience}, $${doc.fees})`
+        ).join('\n')
+      : "• Multiple doctors available across all specialties";
+
+    const specialtiesList = systemData.specialties.length > 0
+      ? systemData.specialties.map(spec => `• ${spec}`).join('\n')
+      : "• General physician\n• Gynecologist\n• Dermatologist\n• Pediatrician\n• Neurologist\n• Gastroenterologist";
+
+    const navigationList = systemData.navigation.map(nav => 
+      `• **${nav.name}** (${nav.path}): ${nav.description}`
+    ).join('\n');
+
+    const userPagesList = systemData.userPages.map(page => 
+      `• **${page.name}** (${page.path}): ${page.description}`
+    ).join('\n');
+
+    const bookingSteps = systemData.bookingFlow.map((step, index) => 
+      `${index + 1}. ${step}`
+    ).join('\n');
+
+    const paymentOptions = systemData.paymentMethods.map(method => 
+      `• **${method}**`
+    ).join('\n');
+
     const prompt = `You are a helpful assistant for CuraLink, a comprehensive healthcare booking platform. You have complete knowledge of how the website works and can guide users through all features.
 
 ## CURALINK WEBSITE STRUCTURE:
 
 ### MAIN NAVIGATION:
-- **HOME (/)**: Landing page with hero section, features, and self-assessment access
-- **ALL DOCTORS (/doctors)**: Browse all doctors or filter by specialty (/doctors/{speciality})
-- **ABOUT US (/about)**: Company information and mission
-- **CONTACT (/contact)**: Contact form and support information
-- **LOGIN (/login)**: User authentication with Login/Create account tabs
+${navigationList}
 
 ### USER ACCOUNT PAGES (requires login):
-- **MY PROFILE (/my-profile)**: Manage personal information, medical history
-- **MY APPOINTMENTS (/my-appointments)**: View, manage, and pay for appointments
-- **APPOINTMENT BOOKING (/appointment/{docId})**: Book specific doctor with date/time selection
+${userPagesList}
 
 ### DOCTOR SPECIALTIES AVAILABLE:
-- General physician
-- Gynecologist  
-- Dermatologist
-- Pediatrician
-- Neurologist
-- Gastroenterologist
+${specialtiesList}
 
 ### APPOINTMENT BOOKING FLOW:
-1. Browse doctors from homepage or "All Doctors" page
-2. Click on desired doctor to view profile (fees, experience, about, address)
-3. Click "Book an Appointment" button
-4. Select available date from calendar
-5. Select available time slot
-6. Choose payment method (Online or Cash)
-7. Complete booking and receive confirmation
+${bookingSteps}
 
 ### PAYMENT OPTIONS:
-- **Online Payment**: Credit/debit cards, digital wallets (Stripe, Razorpay, PayMongo)
-- **Cash Payment**: Pay at clinic, receive digital receipt
+${paymentOptions}
 - All payments show in "My Appointments" with status (Pending, Paid, Completed, Cancelled)
 
 ### SELF-ASSESSMENT TOOL:
@@ -216,9 +290,14 @@ router.post("/general-chat", async (req, res) => {
 ### DOCTOR INFORMATION:
 - Professional photos and credentials
 - Specialization and experience
-- Consultation fees (USD 30-80 range)
+- Consultation fees (varies by doctor)
 - Clinic addresses
 - Patient reviews and ratings
+
+### CURRENT DOCTORS AVAILABLE:
+${doctorSummary}
+
+*Note: This list shows currently available doctors. Visit /doctors to see all options and detailed profiles.*
 
 IMPORTANT RULES:
 - Provide specific, actionable guidance about CuraLink features
