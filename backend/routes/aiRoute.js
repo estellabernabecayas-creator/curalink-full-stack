@@ -226,7 +226,7 @@ router.post("/general-chat", async (req, res) => {
     // Create dynamic summaries
     const doctorSummary = systemData.doctors.length > 0 
       ? systemData.doctors.slice(0, 8).map(doc => 
-          `Dr. ${doc.name} is a ${doc.speciality} with ${doc.experience} of experience. The consultation fee is $${doc.fees}.`
+          `Dr. ${doc.name} is a ${doc.speciality} with ${doc.experience} of experience. The consultation fee is ₱${doc.fees}.`
         ).join(' ')
       : "We have multiple doctors available across all specialties.";
 
@@ -298,7 +298,7 @@ ${doctorSummary}
 IMPORTANT RULES:
 - Provide helpful, friendly guidance about CuraLink features
 - Write in natural, conversational language (no code syntax)
-- Use simple sentences, not bullet points or lists
+- Use - for bullet points when listing items
 - Explain things step-by-step when asked
 - Do NOT provide medical diagnoses or prescribe medications
 - For medical concerns, always recommend consulting appropriate specialist
