@@ -342,7 +342,7 @@ const ResultsScreen = ({ result, onClose, onFindDoctors, onChat, showChat, chatM
                     ? 'bg-emerald-500 text-white rounded-br-none'
                     : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-slate-600 rounded-bl-none'
                 }`}>
-                  {msg.text}
+                  <p className='whitespace-pre-wrap'>{msg.text}</p>
                 </div>
               </div>
             ))}
